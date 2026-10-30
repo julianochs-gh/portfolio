@@ -45,7 +45,7 @@
     backdrop-filter: blur(6px);
   }
   .name { font-weight: 600; text-decoration: none; letter-spacing: -0.01em; }
-  .name span { font-weight: 400; color: var(--muted); }
+  .name span { font-weight: 400; color: var(--muted); margin-left: 0.6em; }
   .site-head nav { display: flex; gap: clamp(12px, 2.5vw, 28px); flex-wrap: wrap; justify-content: flex-end; }
   .site-head nav a { text-decoration: none; color: var(--muted); font-size: 15px; }
   .site-head nav a:hover { color: var(--ink); }
@@ -61,12 +61,15 @@
   .stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
   .frame {
     margin: 0; position: relative;
-    aspect-ratio: 4 / 3; max-height: 72svh; width: 100%;
+    width: 100%;
     background: var(--frame);
     overflow: hidden;
     touch-action: pan-y;
   }
-  .frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .frame { display: flex; align-items: flex-start; justify-content: flex-start; }
+  /* Rahmen passt sich der Bildgröße an; Hochformate werden auf 72 % der Fensterhöhe begrenzt */
+  .frame img { display: block; max-width: 100%; max-height: 72svh; width: auto; height: auto; border-radius: 8px; }
+  .frame svg { aspect-ratio: 4 / 3; height: auto; }
   /* Erschwert das Speichern von Bildern (Rechtsklick, Ziehen, langes Tippen) */
   img, .frame, .thumbs button { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   .frame svg { width: 100%; height: 100%; display: block; }
@@ -78,7 +81,7 @@
   .thumbs { display: flex; gap: 8px; flex-wrap: wrap; min-height: 8px; }
   .thumbs button {
     width: 56px; height: 42px; padding: 0; border: 1px solid transparent;
-    background: var(--frame) center / cover no-repeat; cursor: pointer;
+    background: var(--frame) center / cover no-repeat; cursor: pointer; border-radius: 4px;
   }
   .thumbs button[aria-current="true"] { border-color: var(--ink); }
 
@@ -114,7 +117,7 @@
   }
   .strand .progress {
     position: absolute; left: 0; top: 50%; height: 2px; margin-top: -0.5px;
-    background: var(--veneer); transition: width .5s ease;
+    background: #c4c1bb; transition: width .5s ease;
   }
   .strand li { position: relative; }
   .strand button {
@@ -127,7 +130,7 @@
     background: var(--paper); border: 1px solid var(--muted);
     transition: transform .25s ease, background .25s ease;
   }
-  .strand button.done::after { background: var(--veneer); border-color: var(--veneer); }
+  .strand button.done::after { background: #c4c1bb; border-color: #c4c1bb; }
   .strand button[aria-current="true"]::after { transform: scale(1.6); background: var(--ink); border-color: var(--ink); }
   .strand .label {
     position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
@@ -139,6 +142,48 @@
   .strand button:hover + .label, .strand button:focus-visible + .label, .strand button[aria-current="true"] + .label { opacity: 1; }
   .strand button[aria-current="true"] + .label { color: var(--ink); }
 
+
+  /* Projekt-Zeitstrahl (öffnet über "Projekte" im Kopf) */
+  .nav-btn { border: 0; background: none; padding: 0; cursor: pointer; color: var(--muted); font-size: 15px; }
+  .nav-btn:hover, .nav-btn[aria-expanded="true"] { color: var(--ink); }
+  .timeline {
+    position: absolute; left: 0; right: 0; top: 100%;
+    background: var(--paper); border-bottom: 1px solid var(--line);
+    box-shadow: 0 18px 30px -24px rgba(0,0,0,.25);
+    padding: 20px var(--gutter) 28px;
+    display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px;
+    max-height: calc(100svh - 70px); overflow-y: auto;
+  }
+  .timeline[hidden] { display: none; }
+  .tl-grid { min-width: 0; }
+  .tl-axis, .tl-row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 16px; align-items: center; }
+  .tl-axis { margin-bottom: 6px; }
+  .tl-axis .tl-track { height: 18px; }
+  .tl-year { position: absolute; top: 0; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; transform: translateX(-50%); }
+  .tl-row {
+    width: 100%; border: 0; background: none; text-align: left; cursor: pointer;
+    padding: 9px 0; border-top: 1px solid var(--line); border-radius: 0;
+  }
+  .tl-label { display: flex; flex-direction: column; font-size: 15px; line-height: 1.3; min-width: 0; }
+  .tl-label small { color: var(--muted); font-size: 13px; }
+  .tl-track { position: relative; height: 10px; }
+  .tl-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
+  .tl-bar { position: absolute; top: 0; height: 100%; border-radius: 5px; background: #c4c1bb; transition: background .2s ease; }
+  .tl-bar.open { background: linear-gradient(90deg, #c4c1bb 70%, rgba(196,193,187,0)); }
+  .tl-row:hover .tl-bar, .tl-row:focus-visible .tl-bar, .tl-row.is-current .tl-bar { background: var(--ink); }
+  .tl-row:hover .tl-bar.open, .tl-row:focus-visible .tl-bar.open, .tl-row.is-current .tl-bar.open { background: linear-gradient(90deg, var(--ink) 70%, rgba(22,22,22,0)); }
+  .tl-preview { position: sticky; top: 0; align-self: start; }
+  .tl-preview img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--frame); }
+  .tl-preview h3 { margin: 12px 0 2px; font-size: 18px; font-weight: 500; }
+  .tl-preview p { margin: 0; color: var(--muted); font-size: 14px; }
+  @media (max-width: 860px) {
+    .timeline { grid-template-columns: 1fr; }
+    .tl-preview { display: none; }
+    .tl-axis, .tl-row { grid-template-columns: 130px minmax(0, 1fr); gap: 10px; }
+    .tl-year:nth-child(even) { display: none; }
+  }
+
+
   /* Textabschnitte */
   .section {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
@@ -148,8 +193,8 @@
   }
   .about-side h2, .section > h2 { margin: 0; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; }
   .section p { margin: 0 0 1em; max-width: 64ch; }
-  .portrait { display: block; width: 100%; max-width: 320px; height: auto; margin-top: 24px; }
-  .about-lead { font-size: clamp(20px, 2vw, 24px); line-height: 1.45; letter-spacing: -0.01em; }
+  .portrait { display: block; width: 100%; max-width: 320px; height: auto; margin-top: 24px; border-radius: 8px; }
+  .about-lead { font-size: inherit; }
   .cv { list-style: none; padding: 0; margin: 28px 0 0; max-width: 64ch; }
   .cv li { display: grid; grid-template-columns: 9.5em 1fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
   .cv li span:first-child { color: var(--muted); }
@@ -189,11 +234,22 @@
 <header class="site-head">
   <a class="name" href="#projekte">Julian Ochs <span>Architekt / Tool Designer</span></a>
   <nav aria-label="Hauptnavigation">
-    <a href="#projekte">Projekte</a>
+    <button type="button" class="nav-btn" id="open-timeline" aria-expanded="false" aria-controls="timeline">Projekte</button>
     <a href="#ueber-mich">Über mich</a>
     <a href="#publikationen">Publikationen</a>
     <a href="#kontakt">Kontakt</a>
   </nav>
+  <div class="timeline" id="timeline" hidden>
+    <div class="tl-grid">
+      <div class="tl-axis" aria-hidden="true"><span></span><span class="tl-track" id="tl-years"></span></div>
+      <div id="tl-rows"></div>
+    </div>
+    <aside class="tl-preview" aria-live="polite">
+      <img id="tl-img" alt="">
+      <h3 id="tl-title"></h3>
+      <p id="tl-sub"></p>
+    </aside>
+  </div>
 </header>
 
 <main>
@@ -227,9 +283,9 @@
       <img class="portrait" src="bilder/ueber-mich.jpg" alt="Porträt von Julian Ochs" width="900" height="1200" loading="lazy">
     </div>
     <div>
-      <p class="about-lead">Ich bin Architekt und Tool Designer und forsche und lehre seit rund sieben Jahren an der Universität Kassel zu ressourcenschonendem, digitalem Holzbau. Aktuell leite ich das DFG-Projekt Wood3Dprint, in dem ich auch promoviere, und unterrichte Robotic Fabrication im Bachelor und Master.</p>
-      <p>Meine Wurzeln liegen in der Planung: In meiner Bachelorarbeit und im Büro habe ich öffentliche Bauaufgaben wie Kindergärten und Feuerwehrhäuser in den Leistungsphasen 1–4 bearbeitet, später zudem Projekte zur Restaurierung und Umnutzung im Bestand.</p>
-      <p>Wenn ich nicht gerade mit Robotern und Holz arbeite, bin ich am liebsten auf dem Snowboard unterwegs oder schraube an Auto und Fahrrad.</p>
+      <p class="about-lead">Als Architekt und Tool Designer forsche und lehre ich seit rund sieben Jahren an der Universität Kassel zu ressourcenschonendem, digitalem Holzbau. Derzeit leite ich das DFG-Projekt Wood3Dprint, in dem ich auch promoviere. Zudem unterrichte ich Robotic Fabrication im Bachelor- und Masterstudium.</p>
+      <p>Als klassisch ausgebildeter Architekt habe ich im Bachelorstudium sowie im Büro öffentliche Bauaufgaben wie Kindergärten und Feuerwehrhäuser in den Leistungsphasen 1–4 bearbeitet, später zudem Bestandsprojekte zur Restaurierung und Umnutzung. Im Master habe ich mich dann auf Computational Design sowie robotische Fertigung mit nachwachsenden Rohstoffen spezialisiert.</p>
+      <p>Abseits von Robotern und Holz bin ich am liebsten draußen: beim Snowboarden, Surfen, Wandern oder Radfahren, oft im Van und mit Hund. Außerdem schraube ich gern an Auto und Fahrrad.</p>
       <ul class="cv">
         <li><span>seit 2023</span><span>Projektleitung und Promotion, DFG-Projekt Wood3Dprint, Universität Kassel</span></li>
         <li><span>seit ca. 2019</span><span>Forschung und Lehre, Universität Kassel</span></li>
@@ -250,7 +306,6 @@
       <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/363647033">Robotic Wood Winding for Architectural Structures – Computational Design, Robotic Fabrication and Structural Modeling Methods</a><span class="venue">Margariti, Göbert, Ochs et al., Lienhard. Buchkapitel</span></span></li>
       <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/363647027">An Open Approach to Robotic Prototyping for Architectural Design and Construction</a><span class="venue">Rossi, Deetman, Stefas et al., Eversmann. Buchkapitel</span></span></li>
       <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/354403721">Additive Timber Manufacturing: A Novel, Wood-Based Filament and Its Additive Robotic Fabrication Techniques for Large-Scale, Material-Efficient Construction</a><span class="venue">Eversmann, Ochs, Heise et al., Böhm. 3D Printing and Additive Manufacturing</span></span></li>
-      <li><span class="year">2020</span><span><a href="https://www.researchgate.net/publication/344684877">Additive Manufacturing with Solid Wood</a><span class="venue">Ochs, Akbar, Eversmann. Design Computation Input/Output 2020</span></span></li>
       <li><span class="year">2020</span><span><a href="https://www.researchgate.net/publication/344684702">Additive Manufacturing with Solid Wood: Continuous robotic laying of multiple wicker filaments through micro lamination</a><span class="venue">Ochs, Akbar, Eversmann. Design Computation Input/Output 2020</span></span></li>
     </ol>
   </section>
@@ -259,6 +314,7 @@
     <h2>Kontakt</h2>
     <div>
       <p><a href="mailto:mail@julianochs.de">mail@julianochs.de</a></p>
+      <p><a href="https://www.linkedin.com/in/julian-ochs/">LinkedIn</a></p>
       <p><a href="https://www.researchgate.net/profile/Julian-Ochs-2/research">ResearchGate</a></p>
     </div>
   </section>
@@ -294,6 +350,7 @@ const projects = [
   // Reihenfolge: das neueste bzw. laufende Projekt zuerst
   {
     id: "wood3dprint",
+    start: 2023, end: null,
     context: "Forschung, DFG",
     title: "Wood3Dprint",
     period: "seit 2023",
@@ -301,10 +358,11 @@ const projects = [
     text: "Bisherige 3D-Druckverfahren für Holz arbeiten mit Holzmehl in Kunststoff und verlieren dabei die Stärke der Holzfaser. Wood3Dprint trägt stattdessen feine Filamente aus Massivholz und Furnier robotisch und mit minimalem Klebstoffeinsatz auf. So entstehen frei geformte, topologieoptimierte Leichtbauteile im Architekturmaßstab, in kurzen Druckprozessen und mit vollständig erhaltener Holzstruktur.",
     facts: [["Förderung", "DFG, Grundlagenforschung"], ["Zeitraum", "seit 2023"], ["Rolle", "Projektleitung und Promotion"]],
     credit: "Bild: EDEK, Universität Kassel",
-    images: ["bilder/wood3dprint-01.jpg", "bilder/wood3dprint-02.jpg", "bilder/wood3dprint-03.jpg", "bilder/wood3dprint-04.jpg", "bilder/wood3dprint-05.jpg", "bilder/wood3dprint-06.jpg", "bilder/wood3dprint-07.jpg", "bilder/wood3dprint-08.jpg", "bilder/wood3dprint-09.jpg", "bilder/wood3dprint-10.jpg"]
+    images: ["bilder/wood3dprint-03.jpg", "bilder/wood3dprint-01.jpg", "bilder/wood3dprint-02.jpg", "bilder/wood3dprint-04.jpg", "bilder/wood3dprint-05.jpg", "bilder/wood3dprint-06.jpg", "bilder/wood3dprint-07.jpg", "bilder/wood3dprint-08.jpg", "bilder/wood3dprint-09.jpg", "bilder/wood3dprint-10.jpg"]
   },
   {
     id: "robotic-fabrication",
+    start: 2021, end: null,
     context: "Lehre",
     title: "Robotic Fabrication",
     period: "seit 2021",
@@ -316,6 +374,7 @@ const projects = [
   },
   {
     id: "artc",
+    start: 2020, end: null,
     context: "Forschung, DFG",
     title: "ARTC",
     period: "seit 2020",
@@ -328,6 +387,7 @@ const projects = [
   },
   {
     id: "3dwoodwind",
+    start: 2018, end: 2024,
     context: "Forschung, BBSR",
     title: "3DWoodWind",
     period: "2018–2024",
@@ -336,10 +396,11 @@ const projects = [
 
     facts: [["Förderung", "BBSR, Zukunft Bau"], ["Zeitraum", "2018–2024"], ["Rolle", "Projektleitung in der Produktionsphase bis zur Realisierung"]],
     credit: "Bild: EDEK, Universität Kassel",
-    images: ["bilder/3dwoodwind-01.jpg", "bilder/3dwoodwind-02.jpg", "bilder/3dwoodwind-03.jpg", "bilder/3dwoodwind-04.jpg", "bilder/3dwoodwind-05.jpg", "bilder/3dwoodwind-06.jpg", "bilder/3dwoodwind-07.jpg", "bilder/3dwoodwind-08.jpg", "bilder/3dwoodwind-09.jpg", "bilder/3dwoodwind-10.jpg", "bilder/3dwoodwind-11.jpg", "bilder/3dwoodwind-12.jpg", "bilder/3dwoodwind-13.jpg", "bilder/3dwoodwind-14.jpg", "bilder/3dwoodwind-15.jpg", "bilder/3dwoodwind-16.jpg", "bilder/3dwoodwind-17.jpg", "bilder/3dwoodwind-18.jpg", "bilder/3dwoodwind-19.jpg", "bilder/3dwoodwind-20.jpg", "bilder/3dwoodwind-21.jpg", "bilder/3dwoodwind-22.jpg"]
+    images: ["bilder/3dwoodwind-15.jpg", "bilder/3dwoodwind-01.jpg", "bilder/3dwoodwind-02.jpg", "bilder/3dwoodwind-03.jpg", "bilder/3dwoodwind-04.jpg", "bilder/3dwoodwind-05.jpg", "bilder/3dwoodwind-06.jpg", "bilder/3dwoodwind-07.jpg", "bilder/3dwoodwind-08.jpg", "bilder/3dwoodwind-09.jpg", "bilder/3dwoodwind-10.jpg", "bilder/3dwoodwind-11.jpg", "bilder/3dwoodwind-12.jpg", "bilder/3dwoodwind-13.jpg", "bilder/3dwoodwind-14.jpg", "bilder/3dwoodwind-16.jpg", "bilder/3dwoodwind-17.jpg", "bilder/3dwoodwind-18.jpg", "bilder/3dwoodwind-19.jpg", "bilder/3dwoodwind-20.jpg", "bilder/3dwoodwind-21.jpg", "bilder/3dwoodwind-22.jpg"]
   },
   {
     id: "flignum",
+    start: 2019, end: 2022,
     context: "Forschung",
     title: "Flignum",
     period: "2019–2022",
@@ -351,6 +412,7 @@ const projects = [
   },
   {
     id: "tethok",
+    start: 2018, end: 2021,
     context: "Forschung, Graduiertenkolleg",
     title: "TETHOK",
     period: "2018–2021",
@@ -358,10 +420,11 @@ const projects = [
     text: "Das transdisziplinäre Graduiertenkolleg entwirft textile Architekturen aus endlosen Massivholzfasern. In additiven textilen Prozessen entstehen neue Tragformen, deren Faseranordnung sich direkt festlegen lässt: leichte, materialeffiziente Bauteile mit der vertrauten Ästhetik paralleler und sich kreuzender Fäden.",
     facts: [["Zeitraum", "2018–2021"], ["Rolle", "Übernahme und Weiterführung des Projekts"]],
     credit: "Bild: EDEK, Universität Kassel",
-    images: ["bilder/tethok-01.jpg", "bilder/tethok-02.jpg", "bilder/tethok-03.jpg"]
+    images: ["bilder/tethok-03.jpg", "bilder/tethok-01.jpg", "bilder/tethok-02.jpg"]
   },
   {
     id: "kindergarten-elgershausen",
+    start: 2017, end: 2017,
     context: "Entwurf, Bachelorarbeit",
     title: "Kindergarten Elgershausen",
     period: "2017",
@@ -369,7 +432,7 @@ const projects = [
     text: "Die Gruppenhäuser richten ihre Blickachsen auf den Hirzstein und öffnen sich nach Süden zu einem großen Spielbereich. Die Sporthalle ist separat erschlossen und dient auch für Elternabende und Veranstaltungen im Ort.",
     facts: [["Ort", "Schauenburg-Elgershausen"], ["Jahr", "2017"], ["Rahmen", "Bachelorarbeit, Universität Kassel"]],
     credit: "",
-    images: ["bilder/kindergarten-elgershausen-01.jpg", "bilder/kindergarten-elgershausen-02.jpg", "bilder/kindergarten-elgershausen-03.jpg", "bilder/kindergarten-elgershausen-04.jpg", "bilder/kindergarten-elgershausen-05.jpg"]
+    images: ["bilder/kindergarten-elgershausen-02.jpg", "bilder/kindergarten-elgershausen-01.jpg", "bilder/kindergarten-elgershausen-03.jpg", "bilder/kindergarten-elgershausen-04.jpg", "bilder/kindergarten-elgershausen-05.jpg"]
   }
 ];
 
@@ -471,6 +534,60 @@ $("frame").addEventListener("touchend", (e) => {
 // Rechtsklick und Ziehen auf Bildern unterbinden
 document.addEventListener("contextmenu", (e) => { if (e.target.closest("img, .frame, .thumbs")) e.preventDefault(); });
 document.addEventListener("dragstart", (e) => { if (e.target.closest("img, .frame")) e.preventDefault(); });
+
+// Projekt-Zeitstrahl
+const tlFrom = Math.min(...projects.map((p) => p.start));
+const tlTo = new Date().getFullYear();
+const tlSpan = tlTo - tlFrom + 1;
+const tlPos = (y) => ((y - tlFrom) / tlSpan) * 100;
+for (let y = tlFrom; y <= tlTo; y++) {
+  const s = document.createElement("span");
+  s.className = "tl-year"; s.textContent = y; s.style.left = (tlPos(y) + 50 / tlSpan) + "%";
+  $("tl-years").appendChild(s);
+}
+projects.forEach((p, i) => {
+  const end = p.end ?? tlTo;
+  const row = document.createElement("button");
+  row.type = "button"; row.className = "tl-row";
+  row.innerHTML = `<span class="tl-label">${p.title}<small>${p.period}, ${p.context}</small></span>
+    <span class="tl-track"><span class="tl-bar${p.end == null ? " open" : ""}" style="left:${tlPos(p.start)}%;width:${((end - p.start + 1) / tlSpan) * 100}%"></span></span>`;
+  row.addEventListener("mouseenter", () => tlPreview(i));
+  row.addEventListener("focus", () => tlPreview(i));
+  row.addEventListener("click", () => {
+    go(i); tlClose();
+    document.getElementById("projekte").scrollIntoView({ behavior: "smooth" });
+  });
+  $("tl-rows").appendChild(row);
+});
+function tlPreview(i) {
+  const p = projects[i];
+  $("tl-img").src = p.images[0] || "";
+  $("tl-img").alt = p.title;
+  $("tl-title").textContent = p.title;
+  $("tl-sub").textContent = p.subtitle;
+}
+function tlOpen() {
+  document.querySelectorAll(".tl-row").forEach((r, i) => r.classList.toggle("is-current", i === current));
+  tlPreview(current);
+  $("timeline").hidden = false;
+  $("open-timeline").setAttribute("aria-expanded", "true");
+}
+function tlClose() {
+  $("timeline").hidden = true;
+  $("open-timeline").setAttribute("aria-expanded", "false");
+}
+$("open-timeline").addEventListener("click", () => ($("timeline").hidden ? tlOpen() : tlClose()));
+document.addEventListener("click", (e) => {
+  if (!$("timeline").hidden && !e.target.closest("#timeline, #open-timeline")) tlClose();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") tlClose(); });
+
+// Klick auf den Namen: zurück zum Anfang mit dem ersten Projekt
+document.querySelector(".name").addEventListener("click", (e) => {
+  e.preventDefault();
+  go(0);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
 
 // Direktlink auf ein Projekt, z. B. deine-domain.de/#3dwoodwind
 const start = projects.findIndex((p) => "#" + p.id === location.hash);
