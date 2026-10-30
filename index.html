@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Julian Ochs – Architekt</title>
+<meta name="description" content="Julian Ochs, Architekt. Forschung und Lehre zu robotischer Fertigung und additivem Holzbau an der Universität Kassel.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f7f7f5;
+    --ink: #1f1e1c;
+    --muted: #6b6862;
+    --line: #d9d6cf;
+    --veneer: #b98a5e;
+    --frame: #ecebe7;
+    --gutter: clamp(16px, 4vw, 48px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Schibsted Grotesk", system-ui, sans-serif;
+    font-size: 17px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration-color: var(--line); text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--veneer); outline-offset: 3px; }
+  button { font: inherit; color: inherit; }
+
+  /* Kopf */
+  .site-head {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: baseline; gap: 16px;
+    padding: 18px var(--gutter);
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    backdrop-filter: blur(6px);
+  }
+  .name { font-weight: 600; text-decoration: none; letter-spacing: -0.01em; }
+  .name span { font-weight: 400; color: var(--muted); }
+  .site-head nav { display: flex; gap: clamp(12px, 2.5vw, 28px); flex-wrap: wrap; justify-content: flex-end; }
+  .site-head nav a { text-decoration: none; color: var(--muted); font-size: 15px; }
+  .site-head nav a:hover { color: var(--ink); }
+
+  /* Galerie */
+  .gallery {
+    display: grid;
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 1fr);
+    gap: clamp(24px, 4vw, 56px);
+    padding: 8px var(--gutter) 0;
+    min-height: calc(100svh - 150px);
+  }
+  .stage { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .frame {
+    margin: 0; position: relative;
+    aspect-ratio: 4 / 3; max-height: 72svh; width: 100%;
+    background: var(--frame);
+    overflow: hidden;
+    touch-action: pan-y;
+  }
+  .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .frame svg { width: 100%; height: 100%; display: block; }
+  .frame .hint {
+    position: absolute; left: 16px; bottom: 12px;
+    font-size: 13px; color: var(--muted);
+  }
+  .thumbs { display: flex; gap: 8px; flex-wrap: wrap; min-height: 8px; }
+  .thumbs button {
+    width: 56px; height: 42px; padding: 0; border: 1px solid transparent;
+    background: var(--frame) center / cover no-repeat; cursor: pointer;
+  }
+  .thumbs button[aria-current="true"] { border-color: var(--ink); }
+
+  .info { display: flex; flex-direction: column; padding-top: 4px; min-width: 0; }
+  .info .context { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .info h2 {
+    margin: 0 0 18px; font-weight: 500;
+    font-size: clamp(28px, 3.2vw, 42px); line-height: 1.08; letter-spacing: -0.02em;
+  }
+  .info .subtitle { margin: -8px 0 18px; color: var(--muted); }
+  .info .text { margin: 0 0 22px; max-width: 62ch; }
+  .facts { margin: 0 0 28px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 15px; }
+  .facts dt { color: var(--muted); }
+  .facts dd { margin: 0; }
+  .controls { margin-top: auto; display: flex; align-items: center; gap: 16px; padding-bottom: 8px; }
+  .controls button {
+    border: 1px solid var(--line); background: transparent; cursor: pointer;
+    padding: 10px 18px; border-radius: 999px; font-size: 15px;
+  }
+  .controls button:hover { border-color: var(--ink); }
+  .counter { color: var(--muted); font-size: 15px; font-variant-numeric: tabular-nums; }
+
+  /* Faden-Navigation: jedes Projekt ist ein Knoten auf einem Endlosfaden */
+  .strand { padding: 28px var(--gutter) 40px; }
+  .strand .track { position: relative; }
+  .strand ol {
+    list-style: none; margin: 0; padding: 0;
+    display: flex; justify-content: space-between; position: relative;
+  }
+  .strand .track::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 50%;
+    height: 1px; background: var(--line);
+  }
+  .strand .progress {
+    position: absolute; left: 0; top: 50%; height: 2px; margin-top: -0.5px;
+    background: var(--veneer); transition: width .5s ease;
+  }
+  .strand li { position: relative; }
+  .strand button {
+    display: block; width: 28px; height: 28px; padding: 0; border: 0;
+    background: transparent; cursor: pointer; position: relative;
+  }
+  .strand button::after {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 9px; height: 9px; margin: -4.5px 0 0 -4.5px; border-radius: 50%;
+    background: var(--paper); border: 1px solid var(--muted);
+    transition: transform .25s ease, background .25s ease;
+  }
+  .strand button.done::after { background: var(--veneer); border-color: var(--veneer); }
+  .strand button[aria-current="true"]::after { transform: scale(1.6); background: var(--ink); border-color: var(--ink); }
+  .strand .label {
+    position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
+    white-space: nowrap; font-size: 13px; color: var(--muted);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease;
+  }
+  .strand li:first-child .label { left: 0; transform: none; }
+  .strand li:last-child .label { left: auto; right: 0; transform: none; }
+  .strand button:hover + .label, .strand button:focus-visible + .label, .strand button[aria-current="true"] + .label { opacity: 1; }
+  .strand button[aria-current="true"] + .label { color: var(--ink); }
+
+  /* Textabschnitte */
+  .section {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
+    gap: clamp(16px, 4vw, 56px);
+    padding: clamp(48px, 8vw, 96px) var(--gutter);
+    border-top: 1px solid var(--line);
+  }
+  .section > h2 { margin: 0; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; }
+  .section p { margin: 0 0 1em; max-width: 64ch; }
+  .about-lead { font-size: clamp(20px, 2vw, 24px); line-height: 1.45; letter-spacing: -0.01em; }
+  .cv { list-style: none; padding: 0; margin: 28px 0 0; max-width: 64ch; }
+  .cv li { display: grid; grid-template-columns: 9.5em 1fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
+  .cv li span:first-child { color: var(--muted); }
+  .pubs { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
+  .pubs li { display: grid; grid-template-columns: 3.5em 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .pubs li:first-child { border-top: 0; padding-top: 0; }
+  .pubs .year { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .pubs .venue { display: block; color: var(--muted); font-size: 15px; margin-top: 2px; }
+  .contact a { font-size: clamp(20px, 2vw, 24px); }
+
+  .site-foot {
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    padding: 24px var(--gutter) 32px; border-top: 1px solid var(--line);
+    font-size: 14px; color: var(--muted);
+  }
+  .legal { font-size: 15px; }
+  .legal h3 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
+  .legal p { margin: 0 0 1.4em; }
+
+  @media (max-width: 860px) {
+    .gallery { grid-template-columns: 1fr; min-height: 0; }
+    .frame { max-height: none; }
+    .controls { margin-top: 8px; }
+    .section { grid-template-columns: 1fr; }
+    .strand .label { display: none; }
+  }
+  @media (max-width: 520px) {
+    .site-head { flex-direction: column; gap: 6px; }
+    .site-head nav { justify-content: flex-start; }
+    .cv li { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-head">
+  <a class="name" href="#projekte">Julian Ochs <span>Architekt</span></a>
+  <nav aria-label="Hauptnavigation">
+    <a href="#projekte">Projekte</a>
+    <a href="#ueber-mich">Über mich</a>
+    <a href="#publikationen">Publikationen</a>
+    <a href="#kontakt">Kontakt</a>
+  </nav>
+</header>
+
+<main>
+  <section class="gallery" id="projekte" aria-roledescription="Galerie" aria-label="Projekte">
+    <div class="stage">
+      <figure class="frame" id="frame"></figure>
+      <div class="thumbs" id="thumbs" aria-label="Bilder dieses Projekts"></div>
+    </div>
+    <article class="info" aria-live="polite">
+      <p class="context" id="p-context"></p>
+      <h2 id="p-title"></h2>
+      <p class="subtitle" id="p-subtitle"></p>
+      <p class="text" id="p-text"></p>
+      <dl class="facts" id="p-facts"></dl>
+      <div class="controls">
+        <button type="button" id="prev" aria-label="Vorheriges Projekt">Zurück</button>
+        <button type="button" id="next" aria-label="Nächstes Projekt">Weiter</button>
+        <span class="counter" id="counter"></span>
+      </div>
+    </article>
+  </section>
+
+  <nav class="strand" aria-label="Projektübersicht">
+    <div class="track"><span class="progress" id="progress"></span><ol id="strand"></ol></div>
+  </nav>
+
+  <section class="section" id="ueber-mich">
+    <h2>Über mich</h2>
+    <div>
+      <p class="about-lead">Ich bin Architekt und forsche und lehre seit rund sieben Jahren an der Universität Kassel zu ressourcenschonendem, digitalem Holzbau. Aktuell leite ich das DFG-Projekt Wood3Dprint, in dem ich auch promoviere, und unterrichte Robotic Fabrication im Bachelor und Master.</p>
+      <p>Meine Wurzeln liegen in der Planung: In meiner Bachelorarbeit und im Büro habe ich öffentliche Bauaufgaben wie Kindergärten und Feuerwehrhäuser in den Leistungsphasen 1–4 bearbeitet, später zudem Projekte zur Restaurierung und Umnutzung im Bestand.</p>
+      <p>Wenn ich nicht gerade mit Robotern und Holz arbeite, bin ich am liebsten auf dem Snowboard unterwegs oder schraube an Auto und Fahrrad.</p>
+      <ul class="cv">
+        <li><span>seit 2023</span><span>Projektleitung und Promotion, DFG-Projekt Wood3Dprint, Universität Kassel</span></li>
+        <li><span>seit ca. 2019</span><span>Forschung und Lehre, Universität Kassel</span></li>
+        <li><span>2019</span><span>Master Architektur, Universität Kassel</span></li>
+        <li><span>ca. 1 Jahr</span><span>ISIHome, Bebra: Restaurierung und Umnutzung im Bestand</span></li>
+        <li><span>8 Monate</span><span>Studio Bornheim, Frankfurt am Main: öffentliche Bauaufgaben, LPH 1–4</span></li>
+        <li><span>2017</span><span>Bachelor Architektur, Universität Kassel</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="publikationen">
+    <h2>Publikationen</h2>
+    <ol class="pubs">
+      <li><span class="year">2026</span><span><a href="https://www.researchgate.net/publication/408244825">Stress-informed non-planar additive manufacturing of solid wood veneer as reinforcement for prestressed shell structures</a><span class="venue">Ochs, Eversmann. Construction Robotics</span></span></li>
+      <li><span class="year">2025</span><span><a href="https://www.researchgate.net/publication/398240736">Advancing additive manufacturing with renewable materials: a novel method for stress-aligned 3D printing using beech veneer</a><span class="venue">Ochs, Eversmann, Heise, Böhm. Architectural Intelligence</span></span></li>
+      <li><span class="year">2024</span><span><a href="https://www.researchgate.net/publication/380532510">Robotically winded full scale timber prototypes</a><span class="venue">Göbert, Margariti, Ochs et al., Lienhard. Automation in Construction</span></span></li>
+      <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/363647033">Robotic Wood Winding for Architectural Structures – Computational Design, Robotic Fabrication and Structural Modeling Methods</a><span class="venue">Margariti, Göbert, Ochs et al., Lienhard. Buchkapitel</span></span></li>
+      <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/363647027">An Open Approach to Robotic Prototyping for Architectural Design and Construction</a><span class="venue">Rossi, Deetman, Stefas et al., Eversmann. Buchkapitel</span></span></li>
+      <li><span class="year">2022</span><span><a href="https://www.researchgate.net/publication/354403721">Additive Timber Manufacturing: A Novel, Wood-Based Filament and Its Additive Robotic Fabrication Techniques for Large-Scale, Material-Efficient Construction</a><span class="venue">Eversmann, Ochs, Heise et al., Böhm. 3D Printing and Additive Manufacturing</span></span></li>
+      <li><span class="year">2020</span><span><a href="https://www.researchgate.net/publication/344684877">Additive Manufacturing with Solid Wood</a><span class="venue">Ochs, Akbar, Eversmann. Design Computation Input/Output 2020</span></span></li>
+      <li><span class="year">2020</span><span><a href="https://www.researchgate.net/publication/344684702">Additive Manufacturing with Solid Wood: Continuous robotic laying of multiple wicker filaments through micro lamination</a><span class="venue">Ochs, Akbar, Eversmann. Design Computation Input/Output 2020</span></span></li>
+    </ol>
+  </section>
+
+  <section class="section contact" id="kontakt">
+    <h2>Kontakt</h2>
+    <div>
+      <!-- E-Mail-Adresse hier eintragen (zweimal: im href und im Text) -->
+      <p><a href="mailto:mail@deine-domain.de">mail@deine-domain.de</a></p>
+      <p><a href="https://www.researchgate.net/profile/Julian-Ochs-2/research">ResearchGate</a></p>
+    </div>
+  </section>
+
+  <section class="section legal" id="impressum">
+    <h2>Impressum</h2>
+    <div>
+      <!-- Angaben gemäß § 5 DDG: vollständige Anschrift eintragen -->
+      <h3>Angaben gemäß § 5 DDG</h3>
+      <p>Julian Ochs<br>[Straße und Hausnummer]<br>[PLZ Ort]</p>
+      <h3>Kontakt</h3>
+      <p>E-Mail: mail@deine-domain.de</p>
+      <h3>Datenschutz</h3>
+      <p>Diese Website erhebt selbst keine personenbezogenen Daten und setzt keine Cookies. Beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige Zugriffsdaten (z. B. IP-Adresse) in Server-Logfiles. Schriftarten werden von Google Fonts geladen. [Hinweis zum Hosting-Anbieter ergänzen]</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <span>© <span id="year"></span> Julian Ochs</span>
+  <a href="#impressum">Impressum und Datenschutz</a>
+</footer>
+
+<script>
+/*
+  PROJEKTE BEARBEITEN
+  Bilder in den Ordner "bilder" neben dieser Datei legen und hier eintragen,
+  z. B. images: ["bilder/wood3dprint-1.jpg", "bilder/wood3dprint-2.jpg"].
+  Ohne Bilder erscheint eine Platzhalter-Grafik.
+*/
+const projects = [
+  {
+    id: "wood3dprint",
+    context: "Forschung, DFG",
+    title: "Wood3Dprint",
+    subtitle: "Additive Fertigung mit Massivholzfilamenten",
+    text: "Bisherige 3D-Druckverfahren für Holz arbeiten mit Holzmehl in Kunststoff und verlieren dabei die Stärke der Holzfaser. Wood3Dprint trägt stattdessen feine Filamente aus Massivholz und Furnier robotisch und mit minimalem Klebstoffeinsatz auf. So entstehen frei geformte, topologieoptimierte Leichtbauteile im Architekturmaßstab, in kurzen Druckprozessen und mit vollständig erhaltener Holzstruktur.",
+    facts: [["Förderung", "DFG-Sachbeihilfe"], ["Zeitraum", "seit 2023"], ["Rolle", "Projektleitung und Promotion"]],
+    images: []
+  },
+  {
+    id: "3dwoodwind",
+    context: "Forschung, BBSR Research Prototype 2022",
+    title: "3DWoodWind",
+    subtitle: "Robotisch gewickelte Dachstruktur, digitalBAU 2022 Köln",
+    text: "Gewinnerentwurf eines wettbewerblichen Dialogs des BBSR: Aus Endlosbändern dünner Furnierstreifen wickelt ein Roboter materialeffiziente Hohlprofile, deren natürliche Fasern intakt und zugfest bleiben. Eine KI-gestützte Entwurfslogik kombiniert die modularen Bauteile, Belastungsversuche sichern das Tragwerk ab. Realisiert als begehbare Dachstruktur auf der digitalBAU in Köln.",
+    facts: [["Auftraggeber", "BBSR, Zukunft Bau"], ["Jahr", "2022"], ["Rolle", "Projektleitung in der Produktionsphase bis zur Realisierung"]],
+    images: []
+  },
+  {
+    id: "artc",
+    context: "Forschung, DFG",
+    title: "ARTC",
+    subtitle: "Kreislauforientierter Holzbau mit wiederverwendeten Materialien",
+    text: "Robotisch gefertigte Hohlkörper-Deckenelemente aus kurzen Holzbalken, gefügt mit leimfreien Buchenholzdübeln. Das Projekt verbindet Materialeffizienz, erneuerbare Rohstoffe und Wiederverwendung: Altholz in unterschiedlichen Maßen und Qualitäten wird robotisch analysiert, aufbereitet und zu Decken- und Wandelementen für mehrgeschossige Holzbauten verarbeitet.",
+    facts: [["Förderung", "DFG-Sachbeihilfe"], ["Zeitraum", "seit 2020"], ["Rolle", "Toolentwicklung"]],
+    images: []
+  },
+  {
+    id: "flignum",
+    context: "Forschung",
+    title: "Flignum",
+    subtitle: "Endlosfaden aus Weidenruten",
+    text: "Ziel ist die Produktion eines Endlosfadens aus Massivholz als Halbzeug für die maschinelle Textilfertigung. Weidenruten werden dafür nahtlos zu einem Holz-Monofilament verbunden, das sich zu Geweben, Geflechten, Gelegen und Wicklungen verarbeiten lässt: leichte, feste und drapierbare Holztextilien mit natürlicher Holzoptik.",
+    facts: [["Rolle", "Übernahme und Weiterführung des Projekts"]],
+    images: []
+  },
+  {
+    id: "tethok",
+    context: "Forschung, Graduiertenkolleg",
+    title: "TETHOK",
+    subtitle: "Textile Tectonics for Wood Construction",
+    text: "Das transdisziplinäre Graduiertenkolleg entwirft textile Architekturen aus endlosen Massivholzfasern. In additiven textilen Prozessen entstehen neue Tragformen, deren Faseranordnung sich direkt festlegen lässt: leichte, materialeffiziente Bauteile mit der vertrauten Ästhetik paralleler und sich kreuzender Fäden.",
+    facts: [["Rolle", "Übernahme und Weiterführung des Projekts"]],
+    images: []
+  },
+  {
+    id: "robotic-fabrication",
+    context: "Lehre",
+    title: "Robotic Fabrication",
+    subtitle: "Vom digitalen Entwurf zum robotisch gefertigten Bauteil",
+    text: "Seit fünf Jahren führe ich Studierende im Bachelor und Master an die Fertigung mit Industrierobotern in der Architektur heran: von der visuellen Programmierung in Grasshopper bis zum gefertigten Bauteil an ABB-Robotern. Daneben betreue ich Entwurfsstudios zum zirkulären, modularen Bauen.",
+    facts: [["Werkzeuge", "ABB-Industrieroboter, Grasshopper"], ["Zeitraum", "seit 5 Jahren"]],
+    images: []
+  },
+  {
+    id: "kindergarten-elgershausen",
+    context: "Entwurf, Bachelorarbeit",
+    title: "Kindergarten Elgershausen",
+    subtitle: "Ein Kindergarten zwischen Weite und Geborgenheit",
+    text: "Die Gruppenhäuser richten ihre Blickachsen auf den Hirzstein und öffnen sich nach Süden zu einem großen Spielbereich. Die Sporthalle ist separat erschlossen und dient auch für Elternabende und Veranstaltungen im Ort.",
+    facts: [["Ort", "Schauenburg-Elgershausen"], ["Jahr", "2017"], ["Rahmen", "Bachelorarbeit, Universität Kassel"]],
+    images: []
+  }
+];
+
+const $ = (id) => document.getElementById(id);
+let current = 0, currentImage = 0;
+
+// Platzhalter: feine, gewickelte Holzfasern, je Projekt leicht anders
+function placeholder(seed) {
+  let s = seed * 9301 + 49297;
+  const rand = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const lines = [];
+  const n = 26;
+  const amp = 30 + rand() * 60, phase = rand() * Math.PI * 2, tilt = (rand() - 0.5) * 120;
+  for (let i = 0; i < n; i++) {
+    const y = 120 + i * (360 / n);
+    const k = Math.sin(phase + i * 0.22) * amp;
+    lines.push(`<path d="M-20 ${y} C 260 ${y - k - tilt}, 540 ${y + k + tilt}, 820 ${y + k * 0.3}" />`);
+  }
+  return `<svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g fill="none" stroke="var(--veneer)" stroke-width="1.1" opacity="0.55">${lines.join("")}</g></svg>
+    <span class="hint">Bild folgt</span>`;
+}
+
+function renderImage() {
+  const p = projects[current];
+  const frame = $("frame");
+  if (p.images.length) {
+    frame.innerHTML = `<img src="${p.images[currentImage]}" alt="${p.title}, Bild ${currentImage + 1}">`;
+  } else {
+    frame.innerHTML = placeholder(current + 3);
+  }
+  const thumbs = $("thumbs");
+  thumbs.innerHTML = "";
+  if (p.images.length > 1) {
+    p.images.forEach((src, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.style.backgroundImage = `url("${src}")`;
+      b.setAttribute("aria-label", `Bild ${i + 1} anzeigen`);
+      b.setAttribute("aria-current", i === currentImage);
+      b.onclick = () => { currentImage = i; renderImage(); };
+      thumbs.appendChild(b);
+    });
+  }
+}
+
+function render() {
+  const p = projects[current];
+  $("p-context").textContent = p.context;
+  $("p-title").textContent = p.title;
+  $("p-subtitle").textContent = p.subtitle;
+  $("p-text").textContent = p.text;
+  $("p-facts").innerHTML = p.facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  $("counter").textContent = `${current + 1} von ${projects.length}`;
+  renderImage();
+  document.querySelectorAll("#strand button").forEach((b, i) => {
+    b.setAttribute("aria-current", i === current);
+    b.classList.toggle("done", i < current);
+  });
+  const pct = projects.length > 1 ? (current / (projects.length - 1)) * 100 : 0;
+  $("progress").style.width = pct + "%";
+  history.replaceState(null, "", "#" + p.id);
+}
+
+function go(i) {
+  current = (i + projects.length) % projects.length;
+  currentImage = 0;
+  render();
+}
+
+// Faden-Navigation aufbauen
+projects.forEach((p, i) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<button type="button" aria-label="${p.title}"></button><span class="label">${p.title}</span>`;
+  li.querySelector("button").onclick = () => go(i);
+  $("strand").appendChild(li);
+});
+
+$("prev").onclick = () => go(current - 1);
+$("next").onclick = () => go(current + 1);
+
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest("input, textarea")) return;
+  if (e.key === "ArrowRight") go(current + 1);
+  if (e.key === "ArrowLeft") go(current - 1);
+});
+
+// Wischen auf dem Smartphone
+let touchX = null;
+$("frame").addEventListener("touchstart", (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+$("frame").addEventListener("touchend", (e) => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
+  touchX = null;
+});
+
+// Direktlink auf ein Projekt, z. B. deine-domain.de/#3dwoodwind
+const start = projects.findIndex((p) => "#" + p.id === location.hash);
+current = start >= 0 ? start : 0;
+render();
+$("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
