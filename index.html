@@ -15,7 +15,7 @@
     --muted: #6b6862;
     --line: #dedbd5;
     --veneer: #b98a5e;
-    --frame: #f2f1ee;
+    --frame: #ffffff;
     color-scheme: light;
     --gutter: clamp(16px, 4vw, 48px);
   }
@@ -67,6 +67,8 @@
     touch-action: pan-y;
   }
   .frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  /* Erschwert das Speichern von Bildern (Rechtsklick, Ziehen, langes Tippen) */
+  img, .frame, .thumbs button { -webkit-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   .frame svg { width: 100%; height: 100%; display: block; }
   .frame .hint {
     position: absolute; left: 16px; bottom: 12px;
@@ -465,6 +467,10 @@ $("frame").addEventListener("touchend", (e) => {
   if (Math.abs(dx) > 50) go(current + (dx < 0 ? 1 : -1));
   touchX = null;
 });
+
+// Rechtsklick und Ziehen auf Bildern unterbinden
+document.addEventListener("contextmenu", (e) => { if (e.target.closest("img, .frame, .thumbs")) e.preventDefault(); });
+document.addEventListener("dragstart", (e) => { if (e.target.closest("img, .frame")) e.preventDefault(); });
 
 // Direktlink auf ein Projekt, z. B. deine-domain.de/#3dwoodwind
 const start = projects.findIndex((p) => "#" + p.id === location.hash);
