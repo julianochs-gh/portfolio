@@ -10,12 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #f7f7f5;
-    --ink: #1f1e1c;
-    --muted: #6b6862;
-    --line: #d9d6cf;
-    --veneer: #b98a5e;
-    --frame: #ecebe7;
+    --paper: #1b1a18;
+    --ink: #f1efea;
+    --muted: #a39e95;
+    --line: #3a3833;
+    --veneer: #c99c6e;
+    --frame: #242320;
+    color-scheme: dark;
     --gutter: clamp(16px, 4vw, 48px);
   }
   * { box-sizing: border-box; }
@@ -65,12 +66,13 @@
     overflow: hidden;
     touch-action: pan-y;
   }
-  .frame img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .frame svg { width: 100%; height: 100%; display: block; }
   .frame .hint {
     position: absolute; left: 16px; bottom: 12px;
     font-size: 13px; color: var(--muted);
   }
+  .credit { margin: -4px 0 0; font-size: 13px; color: var(--muted); min-height: 1em; }
   .thumbs { display: flex; gap: 8px; flex-wrap: wrap; min-height: 8px; }
   .thumbs button {
     width: 56px; height: 42px; padding: 0; border: 1px solid transparent;
@@ -142,8 +144,9 @@
     padding: clamp(48px, 8vw, 96px) var(--gutter);
     border-top: 1px solid var(--line);
   }
-  .section > h2 { margin: 0; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; }
+  .about-side h2, .section > h2 { margin: 0; font-weight: 500; font-size: 22px; letter-spacing: -0.01em; }
   .section p { margin: 0 0 1em; max-width: 64ch; }
+  .portrait { display: block; width: 100%; max-width: 320px; height: auto; margin-top: 24px; }
   .about-lead { font-size: clamp(20px, 2vw, 24px); line-height: 1.45; letter-spacing: -0.01em; }
   .cv { list-style: none; padding: 0; margin: 28px 0 0; max-width: 64ch; }
   .cv li { display: grid; grid-template-columns: 9.5em 1fr; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); }
@@ -169,6 +172,7 @@
     .frame { max-height: none; }
     .controls { margin-top: 8px; }
     .section { grid-template-columns: 1fr; }
+    .portrait { max-width: 260px; }
     .strand .label { display: none; }
   }
   @media (max-width: 520px) {
@@ -194,6 +198,7 @@
   <section class="gallery" id="projekte" aria-roledescription="Galerie" aria-label="Projekte">
     <div class="stage">
       <figure class="frame" id="frame"></figure>
+      <p class="credit" id="credit"></p>
       <div class="thumbs" id="thumbs" aria-label="Bilder dieses Projekts"></div>
     </div>
     <article class="info" aria-live="polite">
@@ -215,7 +220,10 @@
   </nav>
 
   <section class="section" id="ueber-mich">
-    <h2>Über mich</h2>
+    <div class="about-side">
+      <h2>Über mich</h2>
+      <img class="portrait" src="bilder/ueber-mich.jpg" alt="Porträt von Julian Ochs" width="900" height="1200" loading="lazy">
+    </div>
     <div>
       <p class="about-lead">Ich bin Architekt und forsche und lehre seit rund sieben Jahren an der Universität Kassel zu ressourcenschonendem, digitalem Holzbau. Aktuell leite ich das DFG-Projekt Wood3Dprint, in dem ich auch promoviere, und unterrichte Robotic Fabrication im Bachelor und Master.</p>
       <p>Meine Wurzeln liegen in der Planung: In meiner Bachelorarbeit und im Büro habe ich öffentliche Bauaufgaben wie Kindergärten und Feuerwehrhäuser in den Leistungsphasen 1–4 bearbeitet, später zudem Projekte zur Restaurierung und Umnutzung im Bestand.</p>
@@ -279,70 +287,89 @@
   Bilder in den Ordner "bilder" neben dieser Datei legen und hier eintragen,
   z. B. images: ["bilder/wood3dprint-1.jpg", "bilder/wood3dprint-2.jpg"].
   Ohne Bilder erscheint eine Platzhalter-Grafik.
+  Kleine Vorschaubilder liegen gleichnamig in "bilder/thumbs".
+  Die Bildquelle (credit) wird unter dem Bild angezeigt, sobald Bilder eingetragen sind.
 */
 const projects = [
+  // Reihenfolge: das neueste bzw. laufende Projekt zuerst
   {
     id: "wood3dprint",
     context: "Forschung, DFG",
     title: "Wood3Dprint",
+    period: "seit 2023",
     subtitle: "Additive Fertigung mit Massivholzfilamenten",
     text: "Bisherige 3D-Druckverfahren für Holz arbeiten mit Holzmehl in Kunststoff und verlieren dabei die Stärke der Holzfaser. Wood3Dprint trägt stattdessen feine Filamente aus Massivholz und Furnier robotisch und mit minimalem Klebstoffeinsatz auf. So entstehen frei geformte, topologieoptimierte Leichtbauteile im Architekturmaßstab, in kurzen Druckprozessen und mit vollständig erhaltener Holzstruktur.",
-    facts: [["Förderung", "DFG-Sachbeihilfe"], ["Zeitraum", "seit 2023"], ["Rolle", "Projektleitung und Promotion"]],
-    images: []
-  },
-  {
-    id: "3dwoodwind",
-    context: "Forschung, BBSR Research Prototype 2022",
-    title: "3DWoodWind",
-    subtitle: "Robotisch gewickelte Dachstruktur, digitalBAU 2022 Köln",
-    text: "Gewinnerentwurf eines wettbewerblichen Dialogs des BBSR: Aus Endlosbändern dünner Furnierstreifen wickelt ein Roboter materialeffiziente Hohlprofile, deren natürliche Fasern intakt und zugfest bleiben. Eine KI-gestützte Entwurfslogik kombiniert die modularen Bauteile, Belastungsversuche sichern das Tragwerk ab. Realisiert als begehbare Dachstruktur auf der digitalBAU in Köln.",
-    facts: [["Auftraggeber", "BBSR, Zukunft Bau"], ["Jahr", "2022"], ["Rolle", "Projektleitung in der Produktionsphase bis zur Realisierung"]],
-    images: []
-  },
-  {
-    id: "artc",
-    context: "Forschung, DFG",
-    title: "ARTC",
-    subtitle: "Kreislauforientierter Holzbau mit wiederverwendeten Materialien",
-    text: "Robotisch gefertigte Hohlkörper-Deckenelemente aus kurzen Holzbalken, gefügt mit leimfreien Buchenholzdübeln. Das Projekt verbindet Materialeffizienz, erneuerbare Rohstoffe und Wiederverwendung: Altholz in unterschiedlichen Maßen und Qualitäten wird robotisch analysiert, aufbereitet und zu Decken- und Wandelementen für mehrgeschossige Holzbauten verarbeitet.",
-    facts: [["Förderung", "DFG-Sachbeihilfe"], ["Zeitraum", "seit 2020"], ["Rolle", "Toolentwicklung"]],
-    images: []
-  },
-  {
-    id: "flignum",
-    context: "Forschung",
-    title: "Flignum",
-    subtitle: "Endlosfaden aus Weidenruten",
-    text: "Ziel ist die Produktion eines Endlosfadens aus Massivholz als Halbzeug für die maschinelle Textilfertigung. Weidenruten werden dafür nahtlos zu einem Holz-Monofilament verbunden, das sich zu Geweben, Geflechten, Gelegen und Wicklungen verarbeiten lässt: leichte, feste und drapierbare Holztextilien mit natürlicher Holzoptik.",
-    facts: [["Rolle", "Übernahme und Weiterführung des Projekts"]],
-    images: []
-  },
-  {
-    id: "tethok",
-    context: "Forschung, Graduiertenkolleg",
-    title: "TETHOK",
-    subtitle: "Textile Tectonics for Wood Construction",
-    text: "Das transdisziplinäre Graduiertenkolleg entwirft textile Architekturen aus endlosen Massivholzfasern. In additiven textilen Prozessen entstehen neue Tragformen, deren Faseranordnung sich direkt festlegen lässt: leichte, materialeffiziente Bauteile mit der vertrauten Ästhetik paralleler und sich kreuzender Fäden.",
-    facts: [["Rolle", "Übernahme und Weiterführung des Projekts"]],
-    images: []
+    facts: [["Förderung", "DFG, Grundlagenforschung"], ["Zeitraum", "seit 2023"], ["Rolle", "Projektleitung und Promotion"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/wood3dprint-01.jpg", "bilder/wood3dprint-02.jpg", "bilder/wood3dprint-03.jpg", "bilder/wood3dprint-04.jpg", "bilder/wood3dprint-05.jpg", "bilder/wood3dprint-06.jpg", "bilder/wood3dprint-07.jpg", "bilder/wood3dprint-08.jpg", "bilder/wood3dprint-09.jpg", "bilder/wood3dprint-10.jpg"]
   },
   {
     id: "robotic-fabrication",
     context: "Lehre",
     title: "Robotic Fabrication",
+    period: "seit 2021",
     subtitle: "Vom digitalen Entwurf zum robotisch gefertigten Bauteil",
     text: "Seit fünf Jahren führe ich Studierende im Bachelor und Master an die Fertigung mit Industrierobotern in der Architektur heran: von der visuellen Programmierung in Grasshopper bis zum gefertigten Bauteil an ABB-Robotern. Daneben betreue ich Entwurfsstudios zum zirkulären, modularen Bauen.",
-    facts: [["Werkzeuge", "ABB-Industrieroboter, Grasshopper"], ["Zeitraum", "seit 5 Jahren"]],
-    images: []
+    facts: [["Werkzeuge", "ABB-Industrieroboter, Grasshopper"], ["Zeitraum", "seit 2021"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/robotic-fabrication-01.jpg", "bilder/robotic-fabrication-02.jpg"]
+  },
+  {
+    id: "artc",
+    context: "Forschung, DFG",
+    title: "ARTC",
+    period: "seit 2020",
+    subtitle: "Kreislauforientierter Holzbau mit wiederverwendeten Materialien",
+    text: "Die Grundidee des Projekts, ursprünglich unter dem Namen Robotic Timber gestartet: Restholzabschnitte, die auf Baustellen anfallen, sowie Altholz werden wieder zu tragenden Bauteilen. Die Stücke in unterschiedlichen Maßen und Qualitäten werden visuell digital erfasst und analysiert und anschließend robotisch zu Hohlkörper-Deckenelementen aus kurzen Holzbalken gefügt, verbunden mit leimfreien Buchenholzdübeln. So entstehen materialeffiziente Decken- und Wandelemente für mehrgeschossige Holzbauten.",
+
+    facts: [["Förderung", "DFG, Grundlagenforschung"], ["Zeitraum", "seit 2020"], ["Rolle", "Toolentwicklung"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/artc-01.jpg", "bilder/artc-02.jpg", "bilder/artc-03.jpg", "bilder/artc-04.jpg", "bilder/artc-05.jpg", "bilder/artc-06.jpg", "bilder/artc-07.jpg", "bilder/artc-08.jpg", "bilder/artc-09.jpg", "bilder/artc-10.jpg", "bilder/artc-11.jpg"]
+  },
+  {
+    id: "3dwoodwind",
+    context: "Forschung, BBSR",
+    title: "3DWoodWind",
+    period: "2018–2024",
+    subtitle: "Robotisch gewickelter Pavillon, digitalBAU 2022 Köln",
+    text: "Die Idee: tragende Leichtbauelemente, die innen hohl sind, additiv aus Holz herstellen. Ein Roboter wickelt dafür Endlosbänder aus dünnen Furnierstreifen zu Hohlprofilen, deren natürliche Fasern intakt und zugfest bleiben und gezielt in Kraftrichtung liegen. So entstehen sehr materialeffiziente Bauteile, die künftig Beton- und Stahlbauteile ersetzen könnten. Als Gewinnerentwurf eines wettbewerblichen Dialogs des BBSR wurde das Prinzip als begehbarer Pavillon auf der digitalBAU 2022 in Köln realisiert.",
+
+    facts: [["Förderung", "BBSR, Zukunft Bau"], ["Zeitraum", "2018–2024"], ["Rolle", "Projektleitung in der Produktionsphase bis zur Realisierung"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/3dwoodwind-01.jpg", "bilder/3dwoodwind-02.jpg", "bilder/3dwoodwind-03.jpg", "bilder/3dwoodwind-04.jpg", "bilder/3dwoodwind-05.jpg", "bilder/3dwoodwind-06.jpg", "bilder/3dwoodwind-07.jpg", "bilder/3dwoodwind-08.jpg", "bilder/3dwoodwind-09.jpg", "bilder/3dwoodwind-10.jpg", "bilder/3dwoodwind-11.jpg", "bilder/3dwoodwind-12.jpg", "bilder/3dwoodwind-13.jpg", "bilder/3dwoodwind-14.jpg", "bilder/3dwoodwind-15.jpg", "bilder/3dwoodwind-16.jpg", "bilder/3dwoodwind-17.jpg", "bilder/3dwoodwind-18.jpg", "bilder/3dwoodwind-19.jpg", "bilder/3dwoodwind-20.jpg", "bilder/3dwoodwind-21.jpg", "bilder/3dwoodwind-22.jpg"]
+  },
+  {
+    id: "flignum",
+    context: "Forschung",
+    title: "Flignum",
+    period: "2019–2022",
+    subtitle: "Endlosfaden aus Weidenruten",
+    text: "Ziel ist die Produktion eines Endlosfadens aus Massivholz als Halbzeug für die maschinelle Textilfertigung. Weidenruten werden dafür nahtlos zu einem Holz-Monofilament verbunden, das sich zu Geweben, Geflechten, Gelegen und Wicklungen verarbeiten lässt: leichte, feste und drapierbare Holztextilien mit natürlicher Holzoptik.",
+    facts: [["Zeitraum", "2019–2022"], ["Rolle", "Übernahme und Weiterführung des Projekts"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/flignum-01.jpg", "bilder/flignum-02.jpg"]
+  },
+  {
+    id: "tethok",
+    context: "Forschung, Graduiertenkolleg",
+    title: "TETHOK",
+    period: "2018–2021",
+    subtitle: "Textile Tectonics for Wood Construction",
+    text: "Das transdisziplinäre Graduiertenkolleg entwirft textile Architekturen aus endlosen Massivholzfasern. In additiven textilen Prozessen entstehen neue Tragformen, deren Faseranordnung sich direkt festlegen lässt: leichte, materialeffiziente Bauteile mit der vertrauten Ästhetik paralleler und sich kreuzender Fäden.",
+    facts: [["Zeitraum", "2018–2021"], ["Rolle", "Übernahme und Weiterführung des Projekts"]],
+    credit: "Bild: EDEK, Universität Kassel",
+    images: ["bilder/tethok-01.jpg", "bilder/tethok-02.jpg", "bilder/tethok-03.jpg"]
   },
   {
     id: "kindergarten-elgershausen",
     context: "Entwurf, Bachelorarbeit",
     title: "Kindergarten Elgershausen",
+    period: "2017",
     subtitle: "Ein Kindergarten zwischen Weite und Geborgenheit",
     text: "Die Gruppenhäuser richten ihre Blickachsen auf den Hirzstein und öffnen sich nach Süden zu einem großen Spielbereich. Die Sporthalle ist separat erschlossen und dient auch für Elternabende und Veranstaltungen im Ort.",
     facts: [["Ort", "Schauenburg-Elgershausen"], ["Jahr", "2017"], ["Rahmen", "Bachelorarbeit, Universität Kassel"]],
-    images: []
+    credit: "",
+    images: ["bilder/kindergarten-elgershausen-01.jpg", "bilder/kindergarten-elgershausen-02.jpg", "bilder/kindergarten-elgershausen-03.jpg", "bilder/kindergarten-elgershausen-04.jpg", "bilder/kindergarten-elgershausen-05.jpg"]
   }
 ];
 
@@ -374,13 +401,14 @@ function renderImage() {
   } else {
     frame.innerHTML = placeholder(current + 3);
   }
+  $("credit").textContent = p.images.length ? (p.credit || "") : "";
   const thumbs = $("thumbs");
   thumbs.innerHTML = "";
   if (p.images.length > 1) {
     p.images.forEach((src, i) => {
       const b = document.createElement("button");
       b.type = "button";
-      b.style.backgroundImage = `url("${src}")`;
+      b.style.backgroundImage = `url("${src.replace("bilder/", "bilder/thumbs/")}")`;
       b.setAttribute("aria-label", `Bild ${i + 1} anzeigen`);
       b.setAttribute("aria-current", i === currentImage);
       b.onclick = () => { currentImage = i; renderImage(); };
@@ -416,7 +444,7 @@ function go(i) {
 // Faden-Navigation aufbauen
 projects.forEach((p, i) => {
   const li = document.createElement("li");
-  li.innerHTML = `<button type="button" aria-label="${p.title}"></button><span class="label">${p.title}</span>`;
+  li.innerHTML = `<button type="button" aria-label="${p.title}"></button><span class="label">${p.title}, ${p.period}</span>`;
   li.querySelector("button").onclick = () => go(i);
   $("strand").appendChild(li);
 });
