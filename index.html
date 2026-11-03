@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Julian Ochs – Architekt / Tool Designer</title>
-<meta name="description" content="Julian Ochs, Architekt und Tool Designer. Forschung und Lehre zu robotischer Fertigung und additivem Holzbau an der Universität Kassel.">
+<title>Julian Ochs – Architekt / Tool Designer / FEA</title>
+<meta name="description" content="Julian Ochs, Architekt, Tool Designer und FEA. Forschung und Lehre zu robotischer Fertigung und additivem Holzbau an der Universität Kassel.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<script>try{if(localStorage.getItem("mode")==="dark")document.documentElement.dataset.mode="dark"}catch(e){}</script>
 <style>
   :root {
     --paper: #ffffff;
@@ -16,9 +17,21 @@
     --line: #dedbd5;
     --veneer: #b98a5e;
     --frame: #ffffff;
+    --soft: var(--soft);
     color-scheme: light;
     --gutter: clamp(16px, 4vw, 48px);
   }
+  html[data-mode="dark"] {
+    --paper: #151514;
+    --ink: #edebe6;
+    --muted: #a29e96;
+    --line: #34322e;
+    --frame: #151514;
+    --soft: #5c5953;
+    color-scheme: dark;
+  }
+  .mode-btn { border: 0; background: none; padding: 0; cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; align-self: center; }
+  .mode-btn:hover { color: var(--ink); }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
@@ -95,6 +108,10 @@
   .facts { margin: 0 0 28px; display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; font-size: 15px; }
   .facts dt { color: var(--muted); }
   .facts dd { margin: 0; }
+  .p-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: -12px 0 28px; font-size: 15px; }
+  .p-links:empty { display: none; }
+  .p-links a { color: var(--ink); text-decoration-color: var(--line); }
+  .p-links a:hover { text-decoration-color: var(--ink); }
   .controls { margin-top: auto; display: flex; align-items: center; gap: 16px; padding-bottom: 8px; }
   .controls button {
     border: 1px solid var(--line); background: transparent; cursor: pointer;
@@ -116,7 +133,7 @@
   }
   .strand .progress {
     position: absolute; left: 0; top: 50%; height: 2px; margin-top: -0.5px;
-    background: #c4c1bb; transition: width .5s ease;
+    background: var(--soft); transition: width .5s ease;
   }
   .strand li { position: relative; }
   .strand button {
@@ -129,7 +146,7 @@
     background: var(--paper); border: 1px solid var(--muted);
     transition: transform .25s ease, background .25s ease;
   }
-  .strand button.done::after { background: #c4c1bb; border-color: #c4c1bb; }
+  .strand button.done::after { background: var(--soft); border-color: var(--soft); }
   .strand button[aria-current="true"]::after { transform: scale(1.6); background: var(--ink); border-color: var(--ink); }
   .strand .label {
     position: absolute; top: 32px; left: 50%; transform: translateX(-50%);
@@ -152,6 +169,7 @@
     padding: 20px var(--gutter) 28px;
     display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px;
     overflow-y: auto; overscroll-behavior: contain; align-content: start;
+    text-align: left;
   }
   .timeline[hidden] { display: none; }
   .tl-grid { min-width: 0; }
@@ -167,10 +185,10 @@
   .tl-label small { color: var(--muted); font-size: 13px; }
   .tl-track { position: relative; height: 10px; }
   .tl-track::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--line); }
-  .tl-bar { position: absolute; top: 0; height: 100%; border-radius: 5px; background: #c4c1bb; transition: background .2s ease; }
-  .tl-bar.open { background: linear-gradient(90deg, #c4c1bb 70%, rgba(196,193,187,0)); }
+  .tl-bar { position: absolute; top: 0; height: 100%; border-radius: 5px; background: var(--soft); transition: background .2s ease; }
+  .tl-bar.open { background: linear-gradient(90deg, var(--soft) 70%, transparent); }
   .tl-row:hover .tl-bar, .tl-row:focus-visible .tl-bar, .tl-row.is-current .tl-bar { background: var(--ink); }
-  .tl-row:hover .tl-bar.open, .tl-row:focus-visible .tl-bar.open, .tl-row.is-current .tl-bar.open { background: linear-gradient(90deg, var(--ink) 70%, rgba(22,22,22,0)); }
+  .tl-row:hover .tl-bar.open, .tl-row:focus-visible .tl-bar.open, .tl-row.is-current .tl-bar.open { background: linear-gradient(90deg, var(--ink) 70%, transparent); }
   .tl-preview { position: sticky; top: 0; align-self: start; }
   .tl-preview img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--frame); }
   .tl-preview h3 { margin: 12px 0 2px; font-size: 18px; font-weight: 500; }
@@ -182,6 +200,20 @@
     .tl-year:nth-child(even) { display: none; }
   }
 
+
+
+  /* Skills */
+  .skills { list-style: none; padding: 0; margin: 0; max-width: 72ch; }
+  .skills li { display: grid; grid-template-columns: 11em minmax(0, 1fr); gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .skills li:first-child { border-top: 0; padding-top: 0; }
+  .skills .cat { color: var(--muted); padding-top: 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; align-content: flex-start; }
+  .chips .chip { font: inherit; color: inherit; background: none; cursor: default; border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: 15px; line-height: 1.4; transition: border-color .15s ease, background .15s ease; }
+  .chips .chip:hover, .chips .chip:focus-visible, .chips .chip.is-open { border-color: var(--ink); }
+  .skill-tip { position: fixed; z-index: 30; max-width: 280px; padding: 10px 12px; border-radius: 8px; background: var(--ink); color: var(--paper); font-size: 14px; line-height: 1.45; pointer-events: none; box-shadow: 0 8px 20px -10px rgba(0,0,0,.4); }
+  .skill-tip[hidden] { display: none; }
+  .skills-hint { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
+  @media (max-width: 520px) { .skills li { grid-template-columns: 1fr; gap: 8px; } }
 
   /* Textabschnitte */
   .section {
@@ -223,6 +255,10 @@
   }
   @media (max-width: 520px) {
     .site-head { gap: 6px; }
+    .site-head nav { gap: 12px; }
+    .name span { display: block; margin: 2px 0 0; font-size: 15px; }
+    .mode-btn { position: absolute; top: 20px; right: max(16px, env(safe-area-inset-right, 0px)); padding: 4px; }
+    .site-head nav a, .nav-btn, .mode-btn { font-size: 14px; }
     .cv li { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>
@@ -230,12 +266,14 @@
 <body>
 
 <header class="site-head">
-  <a class="name" href="#projekte">Julian Ochs <span>Architekt / Tool Designer</span></a>
+  <a class="name" href="#projekte">Julian Ochs <span>Architekt / Tool Designer / FEA</span></a>
   <nav aria-label="Hauptnavigation">
     <button type="button" class="nav-btn" id="open-timeline" aria-expanded="false" aria-controls="timeline">Projekte</button>
     <a href="#ueber-mich">Über mich</a>
+    <a href="#skills">Skills</a>
     <a href="#publikationen">Publikationen</a>
     <a href="#kontakt">Kontakt</a>
+    <button type="button" class="mode-btn" id="mode-btn" aria-pressed="false" aria-label="Dunkles Design einschalten" title="Hell / Dunkel"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 2a8 8 0 0 1 0 16z" fill="currentColor"/></svg></button>
   </nav>
   <div class="timeline" id="timeline" hidden>
     <div class="tl-grid">
@@ -263,6 +301,7 @@
       <p class="subtitle" id="p-subtitle"></p>
       <p class="text" id="p-text"></p>
       <dl class="facts" id="p-facts"></dl>
+      <p class="p-links" id="p-links"></p>
       <div class="controls">
         <button type="button" id="prev" aria-label="Vorheriges Projekt">Zurück</button>
         <button type="button" id="next" aria-label="Nächstes Projekt">Weiter</button>
@@ -292,6 +331,23 @@
         <li><span>8 Monate</span><span>Studio Bornheim, Frankfurt am Main: öffentliche Bauaufgaben, LPH 1–4</span></li>
         <li><span>2017</span><span>Bachelor Architektur, Universität Kassel</span></li>
       </ul>
+    </div>
+  </section>
+
+  <section class="section" id="skills">
+    <h2>Skills</h2>
+    <div>
+    <p class="skills-hint">Fahr über einen Skill oder tipp ihn an, um mehr zu erfahren.</p>
+    <ul class="skills">
+      <li><span class="cat">Robotik und digitale Fertigung</span><span class="chips"><button type="button" class="chip" data-detail="Programmierung und Betrieb von ABB-Robotern in Forschung und Lehre, unter anderem im RAP-Lab der Universität Kassel.">ABB-Industrieroboter</button><button type="button" class="chip" data-detail="Entwicklung robotischer Fertigungsprozesse für Holz: Wickeln, Fügen und Ablegen von Filamenten.">Robotische Fertigung</button><button type="button" class="chip" data-detail="Additive Verfahren mit Massivholz, Furnier und Holzfilamenten, Schwerpunkt meiner Promotion in Wood3Dprint.">Additive Fertigung</button><button type="button" class="chip" data-detail="Prototypen, Werkzeugteile und Modelle im FDM- und SLA-Verfahren.">3D-Druck (FDM und SLA)</button><button type="button" class="chip" data-detail="Fräsbearbeitung von Platten und Bauteilen für Prototypen und Werkzeuge.">CNC-Fräsen (3-Achs)</button><button type="button" class="chip" data-detail="Erfassen von Bauteilen und Prototypen mit Artec-Scannern, etwa zum Abgleich von Soll- und Ist-Geometrie.">3D-Scannen (Artec)</button><button type="button" class="chip" data-detail="Bau großmaßstäblicher Demonstratoren, zum Beispiel des BBSR-Pavillons auf der digitalBAU 2022.">Prototyping im Maßstab 1:1</button></span></li>
+      <li><span class="cat">Computational Design</span><span class="chips"><button type="button" class="chip" data-detail="3D-Modellierung für Entwurf, Fertigungsplanung und Darstellung.">Rhino</button><button type="button" class="chip" data-detail="Parametrischer Entwurf und Roboterprogrammierung, Kern meiner Lehre in Robotic Fabrication.">Grasshopper</button><button type="button" class="chip" data-detail="Konstruktion von Werkzeugen, Endeffektoren und mechanischen Bauteilen.">Fusion 360</button><button type="button" class="chip" data-detail="Eigene Grasshopper-Workflows, von der Geometrie bis zum Roboterpfad.">Visuelle Programmierung</button></span></li>
+      <li><span class="cat">Simulation und Analyse</span><span class="chips"><button type="button" class="chip" data-detail="Tragwerksanalyse mit der Finite-Elemente-Methode direkt im parametrischen Modell.">FEA mit Karamba3D</button><button type="button" class="chip" data-detail="Isogeometrische Analyse von Schalen- und Membrantragwerken in Rhino.">Kiwi3D</button><button type="button" class="chip" data-detail="Physikbasierte Formfindung und Simulation, etwa für gekrümmte und vorgespannte Strukturen.">Kangaroo</button></span></li>
+      <li><span class="cat">Toolbau</span><span class="chips"><button type="button" class="chip" data-detail="Digitale und physische Werkzeuge, vom Grasshopper-Tool bis zum Roboter-Endeffektor.">Tool-Entwicklung</button><button type="button" class="chip" data-detail="Steuerung selbst gebauter Werkzeuge und Sensorik für die Fertigung.">Arduino</button><button type="button" class="chip" data-detail="Schaltungsaufbau und Verkabelung für eigene Fertigungswerkzeuge.">Elektronik</button></span></li>
+      <li><span class="cat">Architektur und Planung</span><span class="chips"><button type="button" class="chip" data-detail="Entwurfs- und Werkplanung, unter anderem für die Bachelorarbeit Kindergarten Elgershausen.">Archicad</button><button type="button" class="chip" data-detail="Öffentliche Bauaufgaben wie Kindergärten und Feuerwehrhäuser bei Studio Bornheim, Frankfurt am Main.">Entwurf und Planung LPH 1–4</button><button type="button" class="chip" data-detail="Restaurierung und Umnutzung von Bestandsgebäuden bei ISIHome, Bebra.">Bauen im Bestand</button><button type="button" class="chip" data-detail="Forschungsschwerpunkt: materialeffiziente und additive Holzbausysteme aus nachwachsenden Rohstoffen.">Holzbau</button><button type="button" class="chip" data-detail="Wiederverwendung von Alt- und Restholz in ARTC sowie zirkuläres, modulares Bauen als Thema in Entwurfsstudios.">Zirkuläres Bauen</button></span></li>
+      <li><span class="cat">Visualisierung und Medien</span><span class="chips"><button type="button" class="chip" data-detail="Layout, Bildbearbeitung und Videoschnitt für Projekte, Publikationen und Lehre.">Adobe Creative Cloud</button><button type="button" class="chip" data-detail="Bildbearbeitung und Visualisierung.">Photoshop</button><button type="button" class="chip" data-detail="Diagramme, Pläne und Grafiken für Publikationen und Präsentationen.">Illustrator</button><button type="button" class="chip" data-detail="Schnitt von Projekt- und Prozessvideos.">Premiere Pro</button></span></li>
+      <li><span class="cat">Forschung und Lehre</span><span class="chips"><button type="button" class="chip" data-detail="Leitung des DFG-Projekts Wood3Dprint sowie Übernahme laufender Projekte wie 3DWoodWind, Flignum und TETHOK.">Projektleitung</button><button type="button" class="chip" data-detail="Arbeit in Projekten der DFG, des BBSR (Zukunft Bau) und der Fachagentur Nachwachsende Rohstoffe.">Drittmittelprojekte (DFG, BBSR, FNR)</button><button type="button" class="chip" data-detail="Mit Tragwerksplanung, Werkstofftechnik, Fügetechnik, Bildender Kunst und Industriepartnern.">Interdisziplinäre Zusammenarbeit</button><button type="button" class="chip" data-detail="Seit 2021 Robotic Fabrication sowie Mitbetreuung von Entwurfsstudios zum zirkulären Bauen.">Lehre im Bachelor und Master</button><button type="button" class="chip" data-detail="7 Veröffentlichungen, unter anderem in Automation in Construction und Construction Robotics.">Wissenschaftliches Publizieren</button></span></li>
+      <li><span class="cat">Außerdem</span><span class="chips"><button type="button" class="chip" data-detail="Eigene Snowboards, selbst entworfen und gebaut.">Snowboardbau</button><button type="button" class="chip" data-detail="Ausbau eines Vans zum Reisemobil, selbst geplant und umgesetzt.">Vanausbau</button></span></li>
+    </ul>
     </div>
   </section>
 
@@ -360,6 +416,7 @@ const projects = [
     subtitle: "Additive Fertigung mit Massivholzfilamenten",
     text: "Bisherige 3D-Druckverfahren für Holz arbeiten mit Holzmehl in Kunststoff und verlieren dabei die Stärke der Holzfaser. Wood3Dprint trägt stattdessen feine Filamente aus Massivholz und Furnier robotisch und mit minimalem Klebstoffeinsatz auf. So entstehen frei geformte, topologieoptimierte Leichtbauteile im Architekturmaßstab, in kurzen Druckprozessen und mit vollständig erhaltener Holzstruktur.",
     facts: [["Förderung", "DFG, Grundlagenforschung"], ["Zeitraum", "seit 2023"], ["Rolle", "Projektleitung und Promotion"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"], ["Partner", "Prof. Dr.-Ing. Stefan Böhm, Trennende und Fügende Fertigungsverfahren (TTF), Universität Kassel"]],
+    links: [["Projektseite EDEK", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/wood3dprint.html"], ["DFG GEPRIS", "https://gepris.dfg.de/project/523403156"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/wood3dprint-03.jpg", "bilder/wood3dprint-01.jpg", "bilder/wood3dprint-02.jpg", "bilder/wood3dprint-04.jpg", "bilder/wood3dprint-05.jpg", "bilder/wood3dprint-06.jpg", "bilder/wood3dprint-07.jpg", "bilder/wood3dprint-08.jpg", "bilder/wood3dprint-09.jpg", "bilder/wood3dprint-10.jpg"]
   },
@@ -372,6 +429,7 @@ const projects = [
     subtitle: "Vom digitalen Entwurf zum robotisch gefertigten Bauteil",
     text: "Seit fünf Jahren führe ich Studierende im Bachelor und Master an die Fertigung mit Industrierobotern in der Architektur heran: von der visuellen Programmierung in Grasshopper bis zum gefertigten Bauteil an ABB-Robotern. Daneben betreue ich Entwurfsstudios zum zirkulären, modularen Bauen.",
     facts: [["Werkzeuge", "ABB-Industrieroboter, Grasshopper"], ["Zeitraum", "seit 2021"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"]],
+    links: [["Seminar Robotic Fabrication", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/lehre-1/seminare/digitale-bauprozesse-robotic-fabrication.html"], ["Seminare", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/lehre-1/seminare.html"], ["Entwurfsstudios", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/lehre-1/projekte.html"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/robotic-fabrication-01.jpg", "bilder/robotic-fabrication-02.jpg"]
   },
@@ -385,6 +443,7 @@ const projects = [
     text: "Die Grundidee des Projekts, ursprünglich unter dem Namen Robotic Timber gestartet: Restholzabschnitte, die auf Baustellen anfallen, sowie Altholz werden wieder zu tragenden Bauteilen. Die Stücke in unterschiedlichen Maßen und Qualitäten werden visuell digital erfasst und analysiert und anschließend robotisch zu Hohlkörper-Deckenelementen aus kurzen Holzbalken gefügt, verbunden mit leimfreien Buchenholzdübeln. So entstehen materialeffiziente Decken- und Wandelemente für mehrgeschossige Holzbauten.",
 
     facts: [["Förderung", "DFG, Grundlagenforschung"], ["Zeitraum", "seit 2020"], ["Rolle", "Toolentwicklung"], ["Team", "Hyo Wook Kim, Julian Ochs"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"], ["Partner", "Prof. Dr.-Ing. Werner Seim, Bauwerkserhaltung und Holzbau<br>Prof. Dr.-Ing. Julian Lienhard, Tragwerksentwurf"]],
+    links: [["Projektseite ARTC", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/abgeschlossene-forschungsprojekte/artc.html"], ["Folgeprojekt ARTC II", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/artc-ii.html"], ["DFG GEPRIS", "https://gepris.dfg.de/project/436451184"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/artc-01.jpg", "bilder/artc-02.jpg", "bilder/artc-03.jpg", "bilder/artc-04.jpg", "bilder/artc-05.jpg", "bilder/artc-06.jpg", "bilder/artc-07.jpg", "bilder/artc-08.jpg", "bilder/artc-09.jpg", "bilder/artc-10.jpg", "bilder/artc-11.jpg"]
   },
@@ -398,6 +457,7 @@ const projects = [
     text: "Die Idee: tragende Leichtbauelemente, die innen hohl sind, additiv aus Holz herstellen. Ein Roboter wickelt dafür Endlosbänder aus dünnen Furnierstreifen zu Hohlprofilen, deren natürliche Fasern intakt und zugfest bleiben und gezielt in Kraftrichtung liegen. So entstehen sehr materialeffiziente Bauteile, die künftig Beton- und Stahlbauteile ersetzen könnten. Als Gewinnerentwurf eines wettbewerblichen Dialogs des BBSR wurde das Prinzip als begehbarer Pavillon auf der digitalBAU 2022 in Köln realisiert.",
 
     facts: [["Förderung", "BBSR, Zukunft Bau"], ["Zeitraum", "2018–2024"], ["Rolle", "Projektübernahme in der Produktionsphase bis zur Realisierung"], ["Team", "Andreas Göbert, Julian Ochs"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"], ["Partner", "Prof. Dr.-Ing. Julian Lienhard, Tragwerksentwurf<br>Prof. Dr.-Ing. Philipp Geyer, Maschinelles Lernen als Entwurfswerkzeug<br>Heitz Furnierkanten, Jowat SE, OEST"], ["Auszeichnungen", "Green Concept Award 2024<br>Wilhelm-Klauditz-Preis für Holzforschung und Umweltschutz 2024"]],
+    links: [["Projektseite 3DWoodWind", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/abgeschlossene-forschungsprojekte/3dwoodwind.html"], ["BBSR Research Prototype 2022", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/demonstrators/bbsr-research-prototype-1.html"], ["Seminar 3DWoodWind", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/lehre-1/seminare/digitale-entwurfstechniken-3dwoodwind.html"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/3dwoodwind-15.jpg", "bilder/3dwoodwind-01.jpg", "bilder/3dwoodwind-02.jpg", "bilder/3dwoodwind-03.jpg", "bilder/3dwoodwind-04.jpg", "bilder/3dwoodwind-05.jpg", "bilder/3dwoodwind-06.jpg", "bilder/3dwoodwind-07.jpg", "bilder/3dwoodwind-08.jpg", "bilder/3dwoodwind-09.jpg", "bilder/3dwoodwind-10.jpg", "bilder/3dwoodwind-11.jpg", "bilder/3dwoodwind-12.jpg", "bilder/3dwoodwind-13.jpg", "bilder/3dwoodwind-14.jpg", "bilder/3dwoodwind-16.jpg", "bilder/3dwoodwind-17.jpg", "bilder/3dwoodwind-18.jpg", "bilder/3dwoodwind-19.jpg", "bilder/3dwoodwind-20.jpg", "bilder/3dwoodwind-21.jpg", "bilder/3dwoodwind-22.jpg"]
   },
@@ -410,6 +470,7 @@ const projects = [
     subtitle: "Endlosfaden aus Weidenruten",
     text: "Ziel ist die Produktion eines Endlosfadens aus Massivholz als Halbzeug für die maschinelle Textilfertigung. Weidenruten werden dafür nahtlos zu einem Holz-Monofilament verbunden, das sich zu Geweben, Geflechten, Gelegen und Wicklungen verarbeiten lässt: leichte, feste und drapierbare Holztextilien mit natürlicher Holzoptik.",
     facts: [["Förderung", "Fachagentur Nachwachsende Rohstoffe (FNR)"], ["Zeitraum", "2019–2022"], ["Rolle", "Übernahme und Weiterführung des Projekts"], ["Team", "Julian Ochs, Zuardin Akbar"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"], ["Partner", "Prof. Heike Klussmann, Bildende Kunst<br>Prof. Dr.-Ing. Stefan Böhm, TTF"]],
+    links: [["Projektseite Flignum", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/abgeschlossene-forschungsprojekte/flignum.html"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/flignum-01.jpg", "bilder/flignum-02.jpg"]
   },
@@ -422,6 +483,7 @@ const projects = [
     subtitle: "Textile Tectonics for Wood Construction",
     text: "Das transdisziplinäre Graduiertenkolleg entwirft textile Architekturen aus endlosen Massivholzfasern. In additiven textilen Prozessen entstehen neue Tragformen, deren Faseranordnung sich direkt festlegen lässt: leichte, materialeffiziente Bauteile mit der vertrauten Ästhetik paralleler und sich kreuzender Fäden.",
     facts: [["Förderung", "Universität Kassel, Förderlinie Zukunft"], ["Zeitraum", "2018–2021"], ["Rolle", "Übernahme und Weiterführung des Projekts"], ["Team", "Arjen Deetman, Julian Ochs"], ["Fachgebiet", "EDEK, Prof. Philipp Eversmann"], ["Partner", "Prof. Heike Klussmann, Bildende Kunst<br>Prof. Dr.-Ing. Stefan Böhm, TTF<br>Prof. Dr.-Ing. Julian Lienhard, Tragwerksentwurf<br>Prof. Dr.-Ing. Hans-Peter Heim, Werkstofftechnik<br>Prof. Dr.-Ing. Detlef Kuhl, Baustatik und Baudynamik<br>Prof. Dr.-Ing. Werner Seim, Bauwerkserhaltung und Holzbau"]],
+    links: [["Projektseite TETHOK", "https://www.uni-kassel.de/fb06/institute/architektur/fachgebiete/experimentelles-und-digitales-entwerfen-und-konstruieren/forschung/abgeschlossene-forschungsprojekte/tethok.html"]],
     credit: "Bild: EDEK, Universität Kassel",
     images: ["bilder/tethok-03.jpg", "bilder/tethok-01.jpg", "bilder/tethok-02.jpg"]
   },
@@ -434,6 +496,7 @@ const projects = [
     subtitle: "Ein Kindergarten zwischen Weite und Geborgenheit",
     text: "Die Gruppenhäuser richten ihre Blickachsen auf den Hirzstein und öffnen sich nach Süden zu einem großen Spielbereich. Die Sporthalle ist separat erschlossen und dient auch für Elternabende und Veranstaltungen im Ort.",
     facts: [["Ort", "Schauenburg-Elgershausen"], ["Jahr", "2017"], ["Rahmen", "Bachelorarbeit, Universität Kassel"], ["Betreuung", "Prof. Brigitte Häntsch"]],
+    links: [],
     credit: "",
     images: ["bilder/kindergarten-elgershausen-02.jpg", "bilder/kindergarten-elgershausen-01.jpg", "bilder/kindergarten-elgershausen-03.jpg", "bilder/kindergarten-elgershausen-04.jpg", "bilder/kindergarten-elgershausen-05.jpg"]
   }
@@ -490,6 +553,7 @@ function render() {
   $("p-subtitle").textContent = p.subtitle;
   $("p-text").textContent = p.text;
   $("p-facts").innerHTML = p.facts.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("");
+  $("p-links").innerHTML = (p.links || []).map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${t} ↗</a>`).join("");
   $("counter").textContent = `${current + 1} von ${projects.length}`;
   renderImage();
   document.querySelectorAll("#strand button").forEach((b, i) => {
@@ -596,6 +660,57 @@ function tlLockScroll(e) {
 }
 document.addEventListener("wheel", tlLockScroll, { passive: false });
 document.addEventListener("touchmove", tlLockScroll, { passive: false });
+
+// Skill-Details beim Überfahren oder Antippen
+(function skillTips() {
+  const tip = document.createElement("div");
+  tip.className = "skill-tip"; tip.hidden = true; tip.setAttribute("role", "tooltip"); tip.id = "skill-tip";
+  document.body.appendChild(tip);
+  let openChip = null;
+  function show(chip) {
+    if (openChip && openChip !== chip) openChip.classList.remove("is-open");
+    openChip = chip; chip.classList.add("is-open");
+    tip.textContent = chip.dataset.detail; tip.hidden = false;
+    chip.setAttribute("aria-describedby", "skill-tip");
+    const r = chip.getBoundingClientRect(), t = tip.getBoundingClientRect();
+    let left = Math.min(Math.max(12, r.left + r.width / 2 - t.width / 2), window.innerWidth - t.width - 12);
+    let top = r.top - t.height - 8;
+    if (top < 12) top = r.bottom + 8;
+    tip.style.left = left + "px"; tip.style.top = top + "px";
+  }
+  function hide() {
+    tip.hidden = true;
+    if (openChip) { openChip.classList.remove("is-open"); openChip.removeAttribute("aria-describedby"); openChip = null; }
+  }
+  document.querySelectorAll(".chip[data-detail]").forEach((chip) => {
+    chip.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse") show(chip); });
+    chip.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") hide(); });
+    chip.addEventListener("focus", () => { if (chip.matches(":focus-visible")) show(chip); });
+    chip.addEventListener("blur", hide);
+    let wasOpen = false;
+    chip.addEventListener("pointerdown", () => { wasOpen = openChip === chip && !tip.hidden; });
+    chip.addEventListener("click", (e) => { e.stopPropagation(); wasOpen ? hide() : show(chip); wasOpen = false; });
+  });
+  document.addEventListener("click", hide);
+  window.addEventListener("scroll", hide, { passive: true });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") hide(); });
+})();
+
+// Hell / Dunkel umschalten
+(function modeToggle() {
+  const btn = $("mode-btn"), root = document.documentElement;
+  const sync = () => {
+    const dark = root.dataset.mode === "dark";
+    btn.setAttribute("aria-pressed", dark);
+    btn.setAttribute("aria-label", dark ? "Helles Design einschalten" : "Dunkles Design einschalten");
+  };
+  btn.addEventListener("click", () => {
+    if (root.dataset.mode === "dark") delete root.dataset.mode; else root.dataset.mode = "dark";
+    try { localStorage.setItem("mode", root.dataset.mode || "light"); } catch (e) {}
+    sync();
+  });
+  sync();
+})();
 
 // Klick auf den Namen: zurück zum Anfang mit dem ersten Projekt
 document.querySelector(".name").addEventListener("click", (e) => {
