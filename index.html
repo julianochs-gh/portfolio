@@ -17,7 +17,7 @@
     --line: #dedbd5;
     --veneer: #b98a5e;
     --frame: #ffffff;
-    --soft: var(--soft);
+    --soft: #c4c1bb;
     color-scheme: light;
     --gutter: clamp(16px, 4vw, 48px);
   }
@@ -215,6 +215,74 @@
   .skills-hint { margin: 0 0 18px; color: var(--muted); font-size: 14px; }
   @media (max-width: 520px) { .skills li { grid-template-columns: 1fr; gap: 8px; } }
 
+
+  /* Übersichtskarte: Projekte, Skills und Hobbys als bewegliches Netz */
+  .map-section { padding: 0 var(--gutter); }
+  .map-wrap { position: relative; height: clamp(420px, 56svh, 580px); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  #projekte, .section { scroll-margin-top: var(--head-h, 96px); }
+  .map-svg { display: block; width: 100%; height: 100%; touch-action: pan-y; }
+  .map-svg .m-edge { stroke: var(--line); stroke-width: 1.2; transition: stroke .25s ease, opacity .25s ease; }
+  .map-svg .m-node { cursor: grab; transition: opacity .25s ease; touch-action: none; will-change: transform; }
+  .map-svg .m-node.dragging { cursor: grabbing; }
+  .map-svg .m-node rect { stroke-width: 1.2; transition: fill .2s ease, stroke .2s ease; }
+  .map-svg .m-node text { font-family: inherit; text-anchor: middle; dominant-baseline: central; pointer-events: none; user-select: none; }
+  .map-svg .t-project rect { fill: var(--ink); stroke: var(--ink); }
+  .map-svg .t-project text { fill: var(--paper); font-size: 15px; font-weight: 500; }
+  .map-svg .t-project { cursor: pointer; }
+  .map-svg .t-skill rect { fill: var(--paper); stroke: var(--soft); }
+  .map-svg .t-skill text { fill: var(--ink); font-size: 13px; }
+  .map-svg .t-hobby rect { fill: var(--paper); stroke: var(--soft); stroke-dasharray: 3 3; }
+  .map-svg .t-hobby text { fill: var(--muted); font-size: 13px; }
+  .map-svg.has-focus .m-edge { opacity: .15; }
+  .map-svg.has-focus .m-edge.on { opacity: 1; stroke: var(--ink); }
+  .map-svg.has-focus .m-node { opacity: .2; }
+  .map-svg.has-focus .m-node.on { opacity: 1; }
+  .map-svg .m-node.focus.t-skill rect, .map-svg .m-node.focus.t-hobby rect { stroke: var(--ink); stroke-dasharray: none; }
+  .map-svg .m-node.hidden-type { opacity: .08; pointer-events: none; }
+  .map-svg .m-edge.hidden-type { opacity: .05; }
+  .map-svg .m-node:focus { outline: none; }
+  .map-svg .m-node:focus-visible rect { stroke: var(--veneer); stroke-width: 2.5; }
+  .map-panel {
+    position: absolute; left: 0; top: 0; width: 260px; z-index: 3;
+    background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: 0 14px 30px -18px rgba(0,0,0,.35);
+    padding: 12px 14px 14px; pointer-events: none;
+    opacity: 0; transform: translateY(4px); transition: opacity .25s ease, transform .25s ease;
+  }
+  .map-panel.show { opacity: 1; transform: none; }
+  .map-panel .m-kind { margin: 0 0 4px; font-size: 13px; color: var(--muted); }
+  .map-panel h2 { margin: 0 0 4px; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.15; }
+  .map-panel p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); max-width: 36ch; }
+  .map-panel img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 6px; margin: 10px 0 0; background: var(--frame); }
+  .map-panel img[hidden] { display: none; }
+  .m-thumbs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
+  .m-thumbs:empty { display: none; }
+  .m-thumbs img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; margin: 0; background: var(--frame); }
+  .map-panel .m-cta { margin-top: 8px; font-size: 13px; color: var(--muted); }
+  .map-filter { position: absolute; right: 0; top: 16px; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .map-filter button {
+    font: inherit; font-size: 13px; color: var(--muted); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer;
+  }
+  .map-filter button[aria-pressed="true"] { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+  .map-legend { position: absolute; left: 0; bottom: 14px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); pointer-events: none; }
+  .map-legend span::before { content: ""; display: inline-block; width: 16px; height: 9px; border-radius: 5px; margin-right: 6px; vertical-align: 0; border: 1.2px solid var(--soft); }
+  .map-legend .lg-project::before { background: var(--ink); border-color: var(--ink); }
+  .map-legend .lg-hobby::before { border-style: dashed; }
+  .map-legend .lg-hint { font-style: normal; }
+  @media (max-width: 860px) {
+    .map-panel { width: min(260px, calc(100% - 8px)); }
+    .map-panel > img { display: none; }
+    .m-thumbs { grid-template-columns: repeat(4, 1fr); }
+    .map-legend { position: static; padding-top: 10px; }
+    .map-wrap { height: auto; padding-bottom: 36px; }
+    .map-svg { height: clamp(460px, 62svh, 560px); }
+    .map-svg .t-project text { font-size: 13px; }
+    .map-svg .t-skill text, .map-svg .t-hobby text { font-size: 11.5px; }
+    .map-panel h2 { font-size: 20px; }
+    .map-filter { position: static; justify-content: flex-start; padding: 10px 0 0; }
+  }
+
   /* Textabschnitte */
   .section {
     display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.4fr);
@@ -256,6 +324,7 @@
   @media (max-width: 520px) {
     .site-head { gap: 6px; }
     .site-head nav { gap: 12px; }
+    .site-head nav a[href="#karte"] { display: none; }
     .name span { display: block; margin: 2px 0 0; font-size: 15px; }
     .mode-btn { position: absolute; top: 20px; right: max(16px, env(safe-area-inset-right, 0px)); padding: 4px; }
     .site-head nav a, .nav-btn, .mode-btn { font-size: 14px; }
@@ -266,8 +335,9 @@
 <body>
 
 <header class="site-head">
-  <a class="name" href="#projekte">Julian Ochs <span>Architekt / Tool Designer / FEA</span></a>
+  <a class="name" href="#karte">Julian Ochs <span>Architekt / Tool Designer / FEA</span></a>
   <nav aria-label="Hauptnavigation">
+    <a href="#karte">Übersicht</a>
     <button type="button" class="nav-btn" id="open-timeline" aria-expanded="false" aria-controls="timeline">Projekte</button>
     <a href="#ueber-mich">Über mich</a>
     <a href="#skills">Skills</a>
@@ -289,6 +359,27 @@
 </header>
 
 <main>
+  <section class="map-section" id="karte" aria-label="Übersicht">
+    <div class="map-wrap" id="map-wrap">
+      <div class="map-panel" id="map-panel" aria-live="polite">
+        <p class="m-kind" id="m-kind"></p>
+        <h2 id="m-title"></h2>
+        <p id="m-text"></p>
+        <img id="m-img" alt="" hidden>
+      <div class="m-thumbs" id="m-thumbs"></div>
+        <p class="m-cta" id="m-cta"></p>
+      </div>
+      <svg class="map-svg" id="map-svg" role="group" aria-label="Netz aus Projekten, Skills und Hobbys"><g id="m-edges"></g><g id="m-nodes"></g></svg>
+      <div class="map-filter" role="group" aria-label="Anzeigen">
+        <button type="button" data-filter="all" aria-pressed="true">Alle</button>
+        <button type="button" data-filter="project" aria-pressed="false">Projekte</button>
+        <button type="button" data-filter="skill" aria-pressed="false">Skills</button>
+        <button type="button" data-filter="hobby" aria-pressed="false">Hobbys</button>
+      </div>
+      <div class="map-legend" aria-hidden="true"><span class="lg-project">Projekt</span><span class="lg-skill">Skill</span><span class="lg-hobby">Hobby</span><em class="lg-hint" id="lg-hint">Punkte verschieben, Projekte anklicken</em></div>
+    </div>
+  </section>
+
   <section class="gallery" id="projekte" aria-roledescription="Galerie" aria-label="Projekte">
     <div class="stage">
       <figure class="frame" id="frame"></figure>
@@ -384,7 +475,7 @@
       <h3>Datenschutz</h3>
       <p>Diese Website erhebt selbst keine personenbezogenen Daten und setzt keine Cookies. Beim Aufruf verarbeitet der Hosting-Anbieter technisch notwendige Zugriffsdaten (z. B. IP-Adresse) in Server-Logfiles. Schriftarten werden von Google Fonts (Google, USA) geladen, dabei wird die IP-Adresse an Google übermittelt. Gehostet wird die Seite über GitHub Pages (GitHub Inc., USA).</p>
       <h3>Bildnachweise und Urheberrecht</h3>
-      <p>Sofern nicht anders angegeben, stammen die Projektabbildungen vom Fachgebiet Experimentelles und Digitales Entwerfen und Konstruieren (EDEK) der Universität Kassel. Die Rechte daran liegen bei der Universität Kassel beziehungsweise bei den jeweiligen Urheberinnen und Urhebern. Die Abbildungen zum Kindergarten Elgershausen stammen von Julian Ochs.</p>
+      <p>Sofern nicht anders angegeben, stammen die Projektabbildungen vom Fachgebiet Experimentelles und Digitales Entwerfen und Konstruieren (EDEK) der Universität Kassel. Die Rechte daran liegen bei der Universität Kassel beziehungsweise bei den jeweiligen Urheberinnen und Urhebern. Die Abbildungen zum Kindergarten Elgershausen und zu den Hobbys stammen von Julian Ochs.</p>
       <p>Alle Texte, Bilder und Zeichnungen auf dieser Website sind urheberrechtlich geschützt. Vervielfältigung, Bearbeitung oder Verbreitung, auch auszugsweise, sind nur mit vorheriger schriftlicher Zustimmung der Rechteinhaber erlaubt.</p>
       <p>Wenn Sie auf einer Abbildung zu sehen sind und mit der Veröffentlichung nicht einverstanden sind oder Ihre Rechte verletzt sehen, genügt eine kurze Nachricht an mail@julianochs.de. Die betreffende Abbildung wird dann umgehend entfernt.</p>
     </div>
@@ -710,6 +801,301 @@ document.addEventListener("touchmove", tlLockScroll, { passive: false });
     sync();
   });
   sync();
+})();
+
+// Höhe des Kopfbereichs für Sprungziele
+function setHeadH() { document.documentElement.style.setProperty("--head-h", document.querySelector(".site-head").getBoundingClientRect().height + 8 + "px"); }
+setHeadH(); window.addEventListener("resize", setHeadH);
+
+// Übersichtskarte: Projekte, Skills und Hobbys
+(function buildMap() {
+  const svg = $("map-svg"), wrap = $("map-wrap"), NS = "http://www.w3.org/2000/svg";
+  const skillDetail = {};
+  document.querySelectorAll(".chip[data-detail]").forEach((c) => { skillDetail[c.textContent.trim()] = c.dataset.detail; });
+  // Kurzname auf der Karte -> Name in der Skills-Liste
+  const skills = {
+    abb: ["ABB-Roboter", "ABB-Industrieroboter"], robfab: ["Robotische Fertigung", "Robotische Fertigung"],
+    additive: ["Additive Fertigung", "Additive Fertigung"], print3d: ["3D-Druck", "3D-Druck (FDM und SLA)"],
+    cnc: ["CNC-Fräsen", "CNC-Fräsen (3-Achs)"], scan: ["3D-Scannen", "3D-Scannen (Artec)"],
+    proto: ["Prototyping 1:1", "Prototyping im Maßstab 1:1"], rhino: ["Rhino", "Rhino"], gh: ["Grasshopper", "Grasshopper"],
+    fusion: ["Fusion 360", "Fusion 360"], karamba: ["Karamba3D", "FEA mit Karamba3D"], kiwi: ["Kiwi3D", "Kiwi3D"],
+    kangaroo: ["Kangaroo", "Kangaroo"], tools: ["Tool-Entwicklung", "Tool-Entwicklung"], arduino: ["Arduino", "Arduino"],
+    elec: ["Elektronik", "Elektronik"], archicad: ["Archicad", "Archicad"], holz: ["Holzbau", "Holzbau"],
+    zirk: ["Zirkuläres Bauen", "Zirkuläres Bauen"], adobe: ["Adobe CC", "Adobe Creative Cloud"],
+    lehre: ["Lehre", "Lehre im Bachelor und Master"], lead: ["Projektleitung", "Projektleitung"],
+    sbbau: ["Snowboardbau", "Snowboardbau"], vanbau: ["Vanausbau", "Vanausbau"]
+  };
+  const hobbies = {
+    snow: ["Snowboarden", "Am liebsten im Tiefschnee, gern auch auf selbst gebauten Boards."],
+    surf: ["Surfen", "Wenn es geht, mit dem Van an die Küste."],
+    hike: ["Wandern", "Draußen unterwegs, meist mit Hund."],
+    van: ["Vanlife", "Reisen im selbst ausgebauten Van."],
+    dog: ["Hund", "Immer mit dabei, ob beim Wandern oder im Van."],
+    bike: ["Fahrrad", "Fahren und Schrauben."]
+  };
+  const projectSkills = {
+    "wood3dprint": ["abb", "robfab", "additive", "gh", "rhino", "tools", "arduino", "karamba", "holz", "lead"],
+    "robotic-fabrication": ["abb", "robfab", "gh", "rhino", "lehre", "proto"],
+    "artc": ["abb", "robfab", "gh", "tools", "scan", "holz", "zirk"],
+    "3dwoodwind": ["abb", "robfab", "additive", "proto", "karamba", "holz", "lead", "fusion"],
+    "flignum": ["holz", "tools", "robfab"],
+    "tethok": ["holz", "kangaroo", "kiwi", "gh", "robfab"],
+    "kindergarten-elgershausen": ["archicad", "adobe"]
+  };
+  const H_IMG = "bilder/hobbys/";
+  const nodeImages = {
+    "s:sbbau": ["snowboardbau-08", "snowboardbau-02", "snowboardbau-04", "snowboardbau-07"],
+    "h:snow": ["snowboarden-01", "snowboardbau-09"],
+    "h:surf": ["surfen-01", "surfen-02"],
+    "h:van": ["van-01", "surfen-02"],
+    "s:vanbau": ["van-01"],
+    "h:dog": ["hund-01"]
+  };
+  const extraLinks = [
+    ["s:tools", "s:print3d"], ["s:tools", "s:cnc"], ["s:tools", "s:fusion"], ["s:tools", "s:elec"], ["s:arduino", "s:elec"],
+    ["s:rhino", "s:gh"], ["s:gh", "s:karamba"], ["s:gh", "s:kangaroo"], ["s:rhino", "s:kiwi"],
+    ["s:sbbau", "h:snow"], ["s:sbbau", "s:cnc"], ["s:vanbau", "h:van"], ["s:vanbau", "s:elec"],
+    ["h:van", "h:surf"], ["h:van", "h:snow"], ["h:van", "h:dog"], ["h:dog", "h:hike"], ["h:bike", "h:hike"], ["h:bike", "s:tools"]
+  ];
+
+  const nodes = [], byId = {};
+  const add = (n) => { nodes.push(n); byId[n.id] = n; };
+  projects.forEach((p, i) => add({ id: "p:" + p.id, type: "project", label: p.title, index: i }));
+  Object.entries(skills).forEach(([k, [label, full]]) => add({ id: "s:" + k, type: "skill", label, detail: skillDetail[full] || "", full }));
+  Object.entries(hobbies).forEach(([k, [label, text]]) => add({ id: "h:" + k, type: "hobby", label, detail: text }));
+  const links = [];
+  Object.entries(projectSkills).forEach(([pid, list]) => list.forEach((s) => links.push(["p:" + pid, "s:" + s])));
+  extraLinks.forEach((l) => links.push(l));
+  const edges = links.filter(([a, b]) => byId[a] && byId[b]).map(([a, b]) => ({ a: byId[a], b: byId[b] }));
+  const neighbors = {};
+  nodes.forEach((n) => (neighbors[n.id] = new Set([n.id])));
+  edges.forEach((e) => { neighbors[e.a.id].add(e.b.id); neighbors[e.b.id].add(e.a.id); });
+
+  // Zeichnen
+  edges.forEach((e) => {
+    e.el = document.createElementNS(NS, "line");
+    e.el.setAttribute("class", "m-edge");
+    $("m-edges").appendChild(e.el);
+  });
+  nodes.forEach((n) => {
+    const g = document.createElementNS(NS, "g");
+    g.setAttribute("class", "m-node t-" + n.type);
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", n.type === "project" ? "button" : "img");
+    g.setAttribute("aria-label", n.label);
+    const r = document.createElementNS(NS, "rect"), t = document.createElementNS(NS, "text");
+    t.textContent = n.label;
+    g.append(r, t);
+    $("m-nodes").appendChild(g);
+    const w = t.getComputedTextLength() + (n.type === "project" ? 28 : 20), h = n.type === "project" ? 34 : 26;
+    r.setAttribute("x", -w / 2); r.setAttribute("y", -h / 2); r.setAttribute("width", w); r.setAttribute("height", h); r.setAttribute("rx", h / 2);
+    Object.assign(n, { el: g, w, h, x: 0, y: 0, vx: 0, vy: 0 });
+  });
+
+  // Startpositionen: Projekte innen, Skills im Ring, Hobbys außen rechts
+  let W = 0, H = 0;
+  function measure() { W = svg.clientWidth; H = svg.clientHeight; }
+  measure();
+  const P = nodes.filter((n) => n.type === "project"), S = nodes.filter((n) => n.type === "skill"), Hb = nodes.filter((n) => n.type === "hobby");
+  const cx0 = W * 0.5;
+  nodes.forEach((n, i) => { const a = i * 2.39996, r = 8 + Math.sqrt(i) * 14; n.x = cx0 + Math.cos(a) * r; n.y = H / 2 + Math.sin(a) * r; });
+  if (false) P.forEach((n, i) => { const a = (i / P.length) * Math.PI * 2; n.x = W / 2 + Math.cos(a) * W * 0.12; n.y = H / 2 + Math.sin(a) * H * 0.14; });
+  if (false) S.forEach((n, i) => { const a = (i / S.length) * Math.PI * 2; n.x = W / 2 + Math.cos(a) * W * 0.32; n.y = H / 2 + Math.sin(a) * H * 0.34; });
+  if (false) Hb.forEach((n, i) => { n.x = W * 0.86; n.y = H * (0.25 + i * 0.1); });
+
+  // Einfache Kräftesimulation
+  let alpha = 1, running = false, dragNode = null;
+  const pad = 14;
+  function tick() {
+    const k = alpha, small = W < 600;
+    const repK = (small ? 1400 : 4200) * k;
+    for (let i = 0; i < nodes.length; i++) {
+      const a = nodes[i];
+      for (let j = i + 1; j < nodes.length; j++) {
+        const b = nodes[j];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d2 = Math.max(dx * dx + dy * dy, 100), d = Math.sqrt(d2);
+        const f = repK / d2;
+        const ux = dx / d, uy = dy / d;
+        a.vx -= ux * f; a.vy -= uy * f; b.vx += ux * f; b.vy += uy * f;
+      }
+    }
+    const L = small ? 80 : 140;
+    edges.forEach((e) => {
+      const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const f = (d - L) * 0.007 * k;
+      const ux = dx / d, uy = dy / d;
+      e.a.vx += ux * f; e.a.vy += uy * f; e.b.vx -= ux * f; e.b.vy -= uy * f;
+    });
+    const topPad = W < 860 ? pad : 150, botPad = W < 860 ? pad : 44, leftPad = W < 860 ? pad : 320;
+    nodes.forEach((n) => {
+      const pull = n.type === "project" ? 0.006 : 0.003;
+      const cx = n.type === "hobby" ? W * (W < 860 ? 0.7 : 0.8) : W * (W < 860 ? 0.45 : 0.46);
+      n.vx += (cx - n.x) * pull * k; n.vy += (H / 2 - n.y) * pull * k;
+      if (n === dragNode) { n.vx = n.vy = 0; return; }
+      n.vx *= 0.85; n.vy *= 0.85;
+      const sp = Math.hypot(n.vx, n.vy), max = 5;
+      if (sp > max) { n.vx *= max / sp; n.vy *= max / sp; }
+      n.x += n.vx; n.y += n.vy;
+    });
+    // Überlappungen direkt auflösen
+    for (let it = 0; it < 3; it++) {
+      clamp();
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const ox = (a.w + b.w) / 2 + 8 - Math.abs(b.x - a.x), oy = (a.h + b.h) / 2 + 6 - Math.abs(b.y - a.y);
+          if (ox > 0 && oy > 0) {
+            const soft = 0.35, wa = (a === dragNode ? 0 : b === dragNode ? 1 : 0.5) * soft, wb = (a === dragNode ? 1 : b === dragNode ? 0 : 0.5) * soft;
+            if (ox < oy * 1.5) { const s = (b.x >= a.x ? 1 : -1) * ox; a.x -= s * wa; b.x += s * wb; }
+            else { const s = (b.y >= a.y ? 1 : -1) * oy; a.y -= s * wa; b.y += s * wb; }
+          }
+        }
+      }
+    }
+    clamp();
+    alpha *= 0.993;
+  }
+  function clamp() {
+    const topPad = W < 860 ? pad : 60, botPad = W < 860 ? pad : 44;
+    nodes.forEach((n) => {
+      if (n === dragNode) return;
+      n.x = Math.max(n.w / 2 + pad, Math.min(W - n.w / 2 - pad, n.x));
+      n.y = Math.max(n.h / 2 + topPad, Math.min(H - n.h / 2 - botPad, n.y));
+    });
+  }
+  function draw() {
+    edges.forEach((e) => {
+      e.el.setAttribute("x1", e.a.x); e.el.setAttribute("y1", e.a.y);
+      e.el.setAttribute("x2", e.b.x); e.el.setAttribute("y2", e.b.y);
+    });
+    nodes.forEach((n) => n.el.setAttribute("transform", `translate(${n.x.toFixed(1)},${n.y.toFixed(1)})`));
+  }
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function loop() {
+    tick(); draw();
+    if (alpha > 0.01 || dragNode) requestAnimationFrame(loop); else running = false;
+  }
+  function kick(a = 0.6) {
+    alpha = Math.max(alpha, a);
+    if (reduced && !dragNode) { for (let i = 0; i < 300 && alpha > 0.02; i++) tick(); draw(); return; }
+    if (!running) { running = true; requestAnimationFrame(loop); }
+  }
+  kick(1);
+
+  // Hervorheben und Infotext
+  if (window.matchMedia("(hover: none)").matches) $("lg-hint").textContent = "Punkte verschieben, Projekte zweimal antippen";
+  const defaults = { kind: $("m-kind").textContent, title: $("m-title").textContent, text: $("m-text").textContent };
+  let pinned = null;
+  function focusNode(n) {
+    svg.classList.add("has-focus");
+    $("map-panel").classList.add("show");
+    requestAnimationFrame(() => placePanel(n));
+    const nb = neighbors[n.id];
+    nodes.forEach((m) => { m.el.classList.toggle("on", nb.has(m.id)); m.el.classList.toggle("focus", m === n); });
+    edges.forEach((e) => e.el.classList.toggle("on", e.a === n || e.b === n));
+    const related = [...nb].filter((id) => id !== n.id).map((id) => byId[id]);
+    if (n.type === "project") {
+      const p = projects[n.index];
+      $("m-kind").textContent = "Projekt · " + p.period;
+      $("m-title").textContent = p.title;
+      $("m-text").textContent = p.subtitle;
+      $("m-img").src = p.images[0] || ""; $("m-img").alt = p.title; $("m-img").hidden = !p.images[0];
+      $("m-thumbs").innerHTML = "";
+      $("m-cta").textContent = window.matchMedia("(hover: none)").matches ? "Nochmal tippen, um das Projekt zu öffnen" : "Klicken, um das Projekt zu öffnen";
+    } else {
+      const ps = related.filter((m) => m.type === "project").map((m) => m.label);
+      $("m-kind").textContent = n.type === "skill" ? "Skill" : "Hobby";
+      $("m-title").textContent = n.type === "skill" ? n.full : n.label;
+      $("m-text").textContent = n.detail;
+      $("m-img").hidden = true;
+      $("m-thumbs").innerHTML = (nodeImages[n.id] || []).map((f) => `<img src="${H_IMG}${f}.jpg" alt="">`).join("");
+      $("m-cta").textContent = ps.length ? "In: " + ps.join(", ") : "";
+    }
+  }
+  function placePanel(n) {
+    const pnl = $("map-panel"), pw = pnl.offsetWidth, ph = pnl.offsetHeight, top0 = svg.offsetTop;
+    let x = n.x + n.w / 2 + 14;
+    if (x + pw > W) x = n.x - n.w / 2 - 14 - pw;
+    if (x < 0) x = Math.max(0, Math.min(W - pw, n.x - pw / 2));
+    let y = n.y - ph / 2;
+    if (x === Math.max(0, Math.min(W - pw, n.x - pw / 2))) y = n.y + n.h / 2 + 10;
+    if (y + ph > H) y = n.y - n.h / 2 - 10 - ph;
+    y = Math.max(0, Math.min(H - ph, y));
+    pnl.style.left = x + "px"; pnl.style.top = (top0 + y) + "px";
+  }
+  function clearFocus() {
+    if (pinned) return;
+    svg.classList.remove("has-focus");
+    $("map-panel").classList.remove("show");
+    nodes.forEach((m) => m.el.classList.remove("on", "focus"));
+    edges.forEach((e) => e.el.classList.remove("on"));
+    $("m-kind").textContent = defaults.kind; $("m-title").textContent = defaults.title; $("m-text").textContent = defaults.text;
+    $("m-img").hidden = true; $("m-thumbs").innerHTML = ""; $("m-cta").textContent = "";
+  }
+  function openProject(n) {
+    go(n.index);
+    document.getElementById("projekte").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+  }
+
+  // Ziehen, Überfahren, Antippen
+  nodes.forEach((n) => {
+    let start = null, moved = false;
+    n.el.addEventListener("pointerenter", (e) => { if (e.pointerType === "mouse" && !dragNode) focusNode(n); });
+    n.el.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse" && !dragNode) clearFocus(); });
+    n.el.addEventListener("focus", () => focusNode(n));
+    n.el.addEventListener("blur", () => { pinned = null; clearFocus(); });
+    n.el.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && n.type === "project") { e.preventDefault(); openProject(n); } });
+    n.el.addEventListener("pointerdown", (e) => {
+      start = { x: e.clientX, y: e.clientY }; moved = false; dragNode = n;
+      n.el.setPointerCapture(e.pointerId); n.el.classList.add("dragging");
+      kick(0.3);
+    });
+    n.el.addEventListener("pointermove", (e) => {
+      if (dragNode !== n || !start) return;
+      if (Math.abs(e.clientX - start.x) + Math.abs(e.clientY - start.y) > 4) moved = true;
+      if (!moved) return;
+      const r = svg.getBoundingClientRect();
+      n.x = Math.max(n.w / 2, Math.min(W - n.w / 2, e.clientX - r.left));
+      n.y = Math.max(n.h / 2, Math.min(H - n.h / 2, e.clientY - r.top));
+      alpha = Math.max(alpha, 0.3);
+    });
+    const end = (e) => {
+      if (dragNode !== n) return;
+      dragNode = null; n.el.classList.remove("dragging");
+      if (!moved) {
+        if (n.type === "project" && (e.pointerType === "mouse" || pinned === n)) { pinned = null; openProject(n); }
+        else { pinned = n; focusNode(n); }
+      }
+      start = null; kick(0.2);
+    };
+    n.el.addEventListener("pointerup", end);
+    n.el.addEventListener("pointercancel", end);
+  });
+  svg.addEventListener("pointerdown", (e) => { if (!e.target.closest(".m-node")) { pinned = null; clearFocus(); } });
+
+  // Filter
+  document.querySelectorAll(".map-filter button").forEach((b) => {
+    b.addEventListener("click", () => {
+      document.querySelectorAll(".map-filter button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+      const f = b.dataset.filter;
+      nodes.forEach((n) => n.el.classList.toggle("hidden-type", f !== "all" && n.type !== f));
+      edges.forEach((e) => e.el.classList.toggle("hidden-type", f !== "all" && (e.a.type !== f || e.b.type !== f)));
+    });
+  });
+
+  // Größe anpassen
+  let rt;
+  window.addEventListener("resize", () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => {
+      const oW = W, oH = H; measure();
+      if (!oW || !oH) return;
+      nodes.forEach((n) => { n.x *= W / oW; n.y *= H / oH; });
+      kick(0.5);
+    }, 120);
+  });
 })();
 
 // Klick auf den Namen: zurück zum Anfang mit dem ersten Projekt
