@@ -219,7 +219,7 @@
   /* Übersichtskarte: Projekte, Skills und Hobbys als bewegliches Netz */
   .map-section { padding: 0 var(--gutter); }
   .map-wrap { position: relative; height: clamp(420px, 58svh, 820px); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
-  #projekte, .section { scroll-margin-top: var(--head-h, 96px); }
+  #karte, #projekte, .section { scroll-margin-top: var(--head-h, 96px); }
   .map-svg { display: block; width: 100%; height: 100%; touch-action: pan-y; }
   .map-svg .m-edge { stroke: var(--line); stroke-width: 1.2; transition: stroke .25s ease, opacity .25s ease; }
   .map-svg .m-node { cursor: grab; transition: opacity .25s ease; touch-action: none; will-change: transform; }
@@ -1186,7 +1186,11 @@ render();
 $("year").textContent = new Date().getFullYear();
 // Beim Laden oben beginnen, außer ein Abschnitt wurde direkt verlinkt
 const startSection = startHash && document.getElementById(startHash.slice(1));
-if (startSection) startSection.scrollIntoView(); else window.scrollTo(0, 0);
+if (startSection && startSection.id !== "karte") startSection.scrollIntoView(); else window.scrollTo(0, 0);
+// Nach dem vollständigen Laden (Schriften, Bilder) noch einmal sicherstellen, dass die Seite oben beginnt
+window.addEventListener("load", () => { if (!startSection || startSection.id === "karte") window.scrollTo(0, 0); });
+// Links auf die Übersicht führen immer ganz nach oben
+document.querySelectorAll('a[href="#karte"]').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
 </script>
 </body>
 </html>
