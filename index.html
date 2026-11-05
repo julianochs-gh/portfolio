@@ -324,8 +324,7 @@
   @media (max-width: 520px) {
     .map-svg { height: clamp(620px, 90svh, 780px); }
     .site-head { gap: 6px; }
-    .site-head nav { gap: 12px; }
-    .site-head nav a[href="#karte"] { display: none; }
+    .site-head nav { gap: 6px 14px; }
     .name span { display: block; margin: 2px 0 0; font-size: 15px; }
     .mode-btn { position: absolute; top: 20px; right: max(16px, env(safe-area-inset-right, 0px)); padding: 4px; }
     .site-head nav a, .nav-btn, .mode-btn { font-size: 14px; }
@@ -336,9 +335,9 @@
 <body>
 
 <header class="site-head">
-  <a class="name" href="#karte">Julian Ochs <span>Architekt / Tool Designer / FEA</span></a>
+  <a class="name to-top" href="./">Julian Ochs <span>Architekt / Tool Designer / FEA</span></a>
   <nav aria-label="Hauptnavigation">
-    <a href="#karte">Übersicht</a>
+    <a class="to-top to-top-nav" href="./">Übersicht</a>
     <button type="button" class="nav-btn" id="open-timeline" aria-expanded="false" aria-controls="timeline">Projekte</button>
     <a href="#ueber-mich">Über mich</a>
     <a href="#skills">Skills</a>
@@ -992,12 +991,13 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   const AMP = 20;
   let amp = AMP;
   function draw(t = performance.now()) {
+    const ts = t * (W < 600 ? 0.4 : W < 1000 ? 0.7 : 1);
     const still = !ambient || dragNode || svg.classList.contains("has-focus");
     const target = AMP * Math.max(0.3, Math.min(1, (W - 300) / 900));
     amp += ((still ? 0 : target) - amp) * 0.06;
     nodes.forEach((n) => {
-      const dx = Math.sin(t * 0.0013 + n.ph) * amp + Math.sin(t * 0.0005 + n.ph * 2.3) * amp * 0.5;
-      const dy = Math.cos(t * 0.0011 + n.ph * 1.7) * amp * 0.8 + Math.cos(t * 0.00045 + n.ph) * amp * 0.4;
+      const dx = Math.sin(ts * 0.0013 + n.ph) * amp + Math.sin(ts * 0.0005 + n.ph * 2.3) * amp * 0.5;
+      const dy = Math.cos(ts * 0.0011 + n.ph * 1.7) * amp * 0.8 + Math.cos(ts * 0.00045 + n.ph) * amp * 0.4;
       n.px = n === dragNode ? n.x : n.x + dx; n.py = n === dragNode ? n.y : n.y + dy;
     });
     // Beim Schweben dürfen sich Punkte nicht überlagern: sichtbare Positionen auseinanderschieben
@@ -1026,10 +1026,15 @@ setHeadH(); window.addEventListener("resize", setHeadH);
       });
       if (!moved) break;
     }
-    nodes.forEach((n) => n.el.setAttribute("transform", `translate(${n.px.toFixed(1)},${n.py.toFixed(1)})`));
+    // Sichtbare Position weich nachführen, damit Ausweichbewegungen nicht ruckeln
+    nodes.forEach((n) => {
+      if (n.sx === undefined || n === dragNode) { n.sx = n.px; n.sy = n.py; }
+      else { const f = W < 600 ? 0.25 : 1; n.sx += (n.px - n.sx) * f; n.sy += (n.py - n.sy) * f; }
+      n.el.setAttribute("transform", `translate(${n.sx.toFixed(1)},${n.sy.toFixed(1)})`);
+    });
     edges.forEach((e) => {
-      e.el.setAttribute("x1", e.a.px); e.el.setAttribute("y1", e.a.py);
-      e.el.setAttribute("x2", e.b.px); e.el.setAttribute("y2", e.b.py);
+      e.el.setAttribute("x1", e.a.sx); e.el.setAttribute("y1", e.a.sy);
+      e.el.setAttribute("x2", e.b.sx); e.el.setAttribute("y2", e.b.sy);
     });
   }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1087,7 +1092,7 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   }
   function placePanel(n) {
     const pnl = $("map-panel"), pw = pnl.offsetWidth, ph = pnl.offsetHeight, top0 = svg.offsetTop;
-    const nx = n.px ?? n.x, ny = n.py ?? n.y;
+    const nx = n.sx ?? n.x, ny = n.sy ?? n.y;
     let x = nx + n.w / 2 + 14;
     if (x + pw > W) x = nx - n.w / 2 - 14 - pw;
     if (x < 0) x = Math.max(0, Math.min(W - pw, nx - pw / 2));
@@ -1170,12 +1175,7 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   });
 })();
 
-// Klick auf den Namen: zurück zum Anfang mit dem ersten Projekt
-document.querySelector(".name").addEventListener("click", (e) => {
-  e.preventDefault();
-  go(0);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-});
+
 
 // Direktlink auf ein Projekt, z. B. deine-domain.de/#3dwoodwind
 if ("scrollRestoration" in history) history.scrollRestoration = "manual";
@@ -1190,7 +1190,13 @@ if (startSection && startSection.id !== "karte") startSection.scrollIntoView(); 
 // Nach dem vollständigen Laden (Schriften, Bilder) noch einmal sicherstellen, dass die Seite oben beginnt
 window.addEventListener("load", () => { if (!startSection || startSection.id === "karte") window.scrollTo(0, 0); });
 // Links auf die Übersicht führen immer ganz nach oben
-document.querySelectorAll('a[href="#karte"]').forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }));
+// Name und „Übersicht“ führen immer ganz nach oben und entfernen das #… aus der Adresse
+document.querySelectorAll("a.to-top").forEach((a) => a.addEventListener("click", (e) => {
+  e.preventDefault();
+  if (a.classList.contains("name")) go(0);
+  history.replaceState(null, "", location.pathname + location.search);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}));
 </script>
 </body>
 </html>
