@@ -218,7 +218,7 @@
 
   /* Übersichtskarte: Projekte, Skills und Hobbys als bewegliches Netz */
   .map-section { padding: 0 var(--gutter); }
-  .map-wrap { position: relative; height: clamp(420px, 56svh, 580px); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
+  .map-wrap { position: relative; height: clamp(420px, 58svh, 820px); border-bottom: 1px solid var(--line); margin-bottom: 32px; }
   #projekte, .section { scroll-margin-top: var(--head-h, 96px); }
   .map-svg { display: block; width: 100%; height: 100%; touch-action: pan-y; }
   .map-svg .m-edge { stroke: var(--line); stroke-width: 1.2; transition: stroke .25s ease, opacity .25s ease; }
@@ -276,7 +276,7 @@
     .m-thumbs { grid-template-columns: repeat(4, 1fr); }
     .map-legend { position: static; padding-top: 10px; }
     .map-wrap { height: auto; padding-bottom: 36px; }
-    .map-svg { height: clamp(460px, 62svh, 560px); }
+    .map-svg { height: clamp(520px, 76svh, 720px); }
     .map-svg .t-project text { font-size: 13px; }
     .map-svg .t-skill text, .map-svg .t-hobby text { font-size: 11.5px; }
     .map-panel h2 { font-size: 20px; }
@@ -322,6 +322,7 @@
     .strand .label { display: none; }
   }
   @media (max-width: 520px) {
+    .map-svg { height: clamp(620px, 90svh, 780px); }
     .site-head { gap: 6px; }
     .site-head nav { gap: 12px; }
     .site-head nav a[href="#karte"] { display: none; }
@@ -884,7 +885,8 @@ setHeadH(); window.addEventListener("resize", setHeadH);
     g.setAttribute("role", n.type === "project" ? "button" : "img");
     g.setAttribute("aria-label", n.label);
     const r = document.createElementNS(NS, "rect"), t = document.createElementNS(NS, "text");
-    t.textContent = n.label;
+    const shortLabels = { "Kindergarten Elgershausen": "Kindergarten", "Robotische Fertigung": "Rob. Fertigung", "Additive Fertigung": "Additive Fert.", "Zirkuläres Bauen": "Zirkulär", "Tool-Entwicklung": "Tools", "Prototyping 1:1": "Prototyping" };
+    t.textContent = svg.clientWidth < 420 && shortLabels[n.label] ? shortLabels[n.label] : n.label;
     g.append(r, t);
     $("m-nodes").appendChild(g);
     const w = t.getComputedTextLength() + (n.type === "project" ? 28 : 20), h = n.type === "project" ? 34 : 26;
@@ -898,7 +900,7 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   measure();
   const P = nodes.filter((n) => n.type === "project"), S = nodes.filter((n) => n.type === "skill"), Hb = nodes.filter((n) => n.type === "hobby");
   const cx0 = W * 0.5;
-  nodes.forEach((n, i) => { const a = i * 2.39996, r = 8 + Math.sqrt(i) * 14; n.x = cx0 + Math.cos(a) * r; n.y = H / 2 + Math.sin(a) * r; });
+  nodes.forEach((n, i) => { const a = i * 2.39996, r = Math.sqrt((i + 0.5) / nodes.length) * 0.46; n.x = cx0 + Math.cos(a) * r * W; n.y = H / 2 + Math.sin(a) * r * H; });
   if (false) P.forEach((n, i) => { const a = (i / P.length) * Math.PI * 2; n.x = W / 2 + Math.cos(a) * W * 0.12; n.y = H / 2 + Math.sin(a) * H * 0.14; });
   if (false) S.forEach((n, i) => { const a = (i / S.length) * Math.PI * 2; n.x = W / 2 + Math.cos(a) * W * 0.32; n.y = H / 2 + Math.sin(a) * H * 0.34; });
   if (false) Hb.forEach((n, i) => { n.x = W * 0.86; n.y = H * (0.25 + i * 0.1); });
@@ -906,9 +908,14 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   // Einfache Kräftesimulation
   let alpha = 1, running = false, dragNode = null;
   const pad = 14;
-  function tick() {
-    const k = alpha, small = W < 600;
-    const repK = (small ? 1400 : 4200) * k;
+  function tick(t = performance.now()) {
+    const k = alpha;
+    const drift = ambient && !dragNode && !svg.classList.contains("has-focus");
+    // Abstände an die verfügbare Fläche anpassen
+    const tp = W < 860 ? pad : 60, bp = W < 860 ? pad : 44;
+    const area = Math.max(1, (W - 2 * pad) * (H - tp - bp));
+    const L = Math.max(60, Math.min(230, Math.sqrt(area / nodes.length) * 1.05));
+    const repK = 0.22 * L * L * k;
     for (let i = 0; i < nodes.length; i++) {
       const a = nodes[i];
       for (let j = i + 1; j < nodes.length; j++) {
@@ -920,7 +927,6 @@ setHeadH(); window.addEventListener("resize", setHeadH);
         a.vx -= ux * f; a.vy -= uy * f; b.vx += ux * f; b.vy += uy * f;
       }
     }
-    const L = small ? 80 : 140;
     edges.forEach((e) => {
       const dx = e.b.x - e.a.x, dy = e.b.y - e.a.y, d = Math.sqrt(dx * dx + dy * dy) || 1;
       const f = (d - L) * 0.007 * k;
@@ -930,7 +936,7 @@ setHeadH(); window.addEventListener("resize", setHeadH);
     const topPad = W < 860 ? pad : 150, botPad = W < 860 ? pad : 44, leftPad = W < 860 ? pad : 320;
     nodes.forEach((n) => {
       const pull = n.type === "project" ? 0.006 : 0.003;
-      const cx = n.type === "hobby" ? W * (W < 860 ? 0.7 : 0.8) : W * (W < 860 ? 0.45 : 0.46);
+      const cx = n.type === "hobby" ? W * (W < 860 ? 0.7 : 0.74) : W * (W < 860 ? 0.45 : 0.46);
       n.vx += (cx - n.x) * pull * k; n.vy += (H / 2 - n.y) * pull * k;
       if (n === dragNode) { n.vx = n.vy = 0; return; }
       n.vx *= 0.85; n.vy *= 0.85;
@@ -945,7 +951,8 @@ setHeadH(); window.addEventListener("resize", setHeadH);
         const a = nodes[i];
         for (let j = i + 1; j < nodes.length; j++) {
           const b = nodes[j];
-          const ox = (a.w + b.w) / 2 + 8 - Math.abs(b.x - a.x), oy = (a.h + b.h) / 2 + 6 - Math.abs(b.y - a.y);
+          const gx = 8 + amp * 0.6, gy = 6 + amp * 0.4;
+          const ox = (a.w + b.w) / 2 + gx - Math.abs(b.x - a.x), oy = (a.h + b.h) / 2 + gy - Math.abs(b.y - a.y);
           if (ox > 0 && oy > 0) {
             const soft = 0.35, wa = (a === dragNode ? 0 : b === dragNode ? 1 : 0.5) * soft, wb = (a === dragNode ? 1 : b === dragNode ? 0 : 0.5) * soft;
             if (ox < oy * 1.5) { const s = (b.x >= a.x ? 1 : -1) * ox; a.x -= s * wa; b.x += s * wb; }
@@ -954,8 +961,24 @@ setHeadH(); window.addEventListener("resize", setHeadH);
         }
       }
     }
+    fill(tp, bp);
     clamp();
-    alpha *= 0.993;
+    alpha = Math.max(alpha * 0.993, ambient ? 0.03 : 0);
+  }
+  // Netz behutsam aufziehen, bis es die Fläche in Breite und Höhe ausfüllt
+  function fill(tp, bp) {
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    nodes.forEach((n) => { x0 = Math.min(x0, n.x - n.w / 2); x1 = Math.max(x1, n.x + n.w / 2); y0 = Math.min(y0, n.y - n.h / 2); y1 = Math.max(y1, n.y + n.h / 2); });
+    const tw = W - 2 * pad, th = H - tp - bp, bw = x1 - x0, bh = y1 - y0;
+    const sx = bw > 0 ? tw / bw : 1, sy = bh > 0 ? th / bh : 1;
+    const fx = sx > 1.01 ? 1 + Math.min(0.03, (sx - 1) * 0.06) : 1, fy = sy > 1.01 ? 1 + Math.min(0.03, (sy - 1) * 0.06) : 1;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, tx = pad + tw / 2, ty = tp + th / 2;
+    if (fx === 1 && fy === 1 && Math.abs(tx - cx) < 2 && Math.abs(ty - cy) < 2) return;
+    nodes.forEach((n) => {
+      if (n === dragNode) return;
+      n.x = cx + (n.x - cx) * fx + (tx - cx) * 0.04;
+      n.y = cy + (n.y - cy) * fy + (ty - cy) * 0.04;
+    });
   }
   function clamp() {
     const topPad = W < 860 ? pad : 60, botPad = W < 860 ? pad : 44;
@@ -965,18 +988,66 @@ setHeadH(); window.addEventListener("resize", setHeadH);
       n.y = Math.max(n.h / 2 + topPad, Math.min(H - n.h / 2 - botPad, n.y));
     });
   }
-  function draw() {
-    edges.forEach((e) => {
-      e.el.setAttribute("x1", e.a.x); e.el.setAttribute("y1", e.a.y);
-      e.el.setAttribute("x2", e.b.x); e.el.setAttribute("y2", e.b.y);
+  // Sanftes Schweben: jeder Punkt kreist leicht um seine Position, beim Überfahren kommt alles zur Ruhe
+  const AMP = 20;
+  let amp = AMP;
+  function draw(t = performance.now()) {
+    const still = !ambient || dragNode || svg.classList.contains("has-focus");
+    const target = AMP * Math.max(0.3, Math.min(1, (W - 300) / 900));
+    amp += ((still ? 0 : target) - amp) * 0.06;
+    nodes.forEach((n) => {
+      const dx = Math.sin(t * 0.0013 + n.ph) * amp + Math.sin(t * 0.0005 + n.ph * 2.3) * amp * 0.5;
+      const dy = Math.cos(t * 0.0011 + n.ph * 1.7) * amp * 0.8 + Math.cos(t * 0.00045 + n.ph) * amp * 0.4;
+      n.px = n === dragNode ? n.x : n.x + dx; n.py = n === dragNode ? n.y : n.y + dy;
     });
-    nodes.forEach((n) => n.el.setAttribute("transform", `translate(${n.x.toFixed(1)},${n.y.toFixed(1)})`));
+    // Beim Schweben dürfen sich Punkte nicht überlagern: sichtbare Positionen auseinanderschieben
+    const tp = W < 860 ? pad : 60, bp = W < 860 ? pad : 44;
+    for (let it = 0; it < 24; it++) {
+      let moved = false;
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const ox = (a.w + b.w) / 2 + 7 - Math.abs(b.px - a.px), oy = (a.h + b.h) / 2 + 6 - Math.abs(b.py - a.py);
+          if (ox > 0 && oy > 0) {
+            moved = true;
+            const wa = a === dragNode ? 0 : b === dragNode ? 1 : 0.5, wb = 1 - wa;
+            const atEdgeX = (n) => n.px - n.w / 2 < 4 || n.px + n.w / 2 > W - 4;
+            const atEdgeY = (n) => n.py - n.h / 2 < 4 || n.py + n.h / 2 > H - 4;
+            const preferX = (ox / (a.w + b.w) < oy / (a.h + b.h) && !(atEdgeX(a) || atEdgeX(b))) || atEdgeY(a) || atEdgeY(b);
+            if (preferX) { const d = (b.px >= a.px ? 1 : -1) * ox; a.px -= d * wa; b.px += d * wb; }
+            else { const d = (b.py >= a.py ? 1 : -1) * oy; a.py -= d * wa; b.py += d * wb; }
+          }
+        }
+      }
+      if (it % 3 === 2 || !moved) nodes.forEach((n) => {
+        n.px = Math.max(n.w / 2 + 1, Math.min(W - n.w / 2 - 1, n.px));
+        n.py = Math.max(n.h / 2 + 1, Math.min(H - n.h / 2 - 1, n.py));
+      });
+      if (!moved) break;
+    }
+    nodes.forEach((n) => n.el.setAttribute("transform", `translate(${n.px.toFixed(1)},${n.py.toFixed(1)})`));
+    edges.forEach((e) => {
+      e.el.setAttribute("x1", e.a.px); e.el.setAttribute("y1", e.a.py);
+      e.el.setAttribute("x2", e.b.px); e.el.setAttribute("y2", e.b.py);
+    });
   }
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  function loop() {
-    tick(); draw();
-    if (alpha > 0.01 || dragNode) requestAnimationFrame(loop); else running = false;
+  // Leichte Dauerbewegung, solange die Karte sichtbar ist und nichts hervorgehoben wird
+  const ambient = !reduced;
+  let visible = true;
+  nodes.forEach((n, i) => (n.ph = i * 1.7 + Math.random() * 6));
+  function loop(t) {
+    tick(t); draw(t);
+    if (visible && (ambient || alpha > 0.01 || dragNode)) requestAnimationFrame(loop); else running = false;
   }
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      visible = entries[0].isIntersecting && !document.hidden;
+      if (visible) kick(0.05);
+    }).observe(svg);
+  }
+  document.addEventListener("visibilitychange", () => { visible = !document.hidden; if (visible) kick(0.05); });
   function kick(a = 0.6) {
     alpha = Math.max(alpha, a);
     if (reduced && !dragNode) { for (let i = 0; i < 300 && alpha > 0.02; i++) tick(); draw(); return; }
@@ -1016,12 +1087,13 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   }
   function placePanel(n) {
     const pnl = $("map-panel"), pw = pnl.offsetWidth, ph = pnl.offsetHeight, top0 = svg.offsetTop;
-    let x = n.x + n.w / 2 + 14;
-    if (x + pw > W) x = n.x - n.w / 2 - 14 - pw;
-    if (x < 0) x = Math.max(0, Math.min(W - pw, n.x - pw / 2));
-    let y = n.y - ph / 2;
-    if (x === Math.max(0, Math.min(W - pw, n.x - pw / 2))) y = n.y + n.h / 2 + 10;
-    if (y + ph > H) y = n.y - n.h / 2 - 10 - ph;
+    const nx = n.px ?? n.x, ny = n.py ?? n.y;
+    let x = nx + n.w / 2 + 14;
+    if (x + pw > W) x = nx - n.w / 2 - 14 - pw;
+    if (x < 0) x = Math.max(0, Math.min(W - pw, nx - pw / 2));
+    let y = ny - ph / 2;
+    if (x === Math.max(0, Math.min(W - pw, nx - pw / 2))) y = ny + n.h / 2 + 10;
+    if (y + ph > H) y = ny - n.h / 2 - 10 - ph;
     y = Math.max(0, Math.min(H - ph, y));
     pnl.style.left = x + "px"; pnl.style.top = (top0 + y) + "px";
   }
@@ -1106,10 +1178,15 @@ document.querySelector(".name").addEventListener("click", (e) => {
 });
 
 // Direktlink auf ein Projekt, z. B. deine-domain.de/#3dwoodwind
-const start = projects.findIndex((p) => "#" + p.id === location.hash);
+if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+const startHash = location.hash;
+const start = projects.findIndex((p) => "#" + p.id === startHash);
 current = start >= 0 ? start : 0;
 render();
 $("year").textContent = new Date().getFullYear();
+// Beim Laden oben beginnen, außer ein Abschnitt wurde direkt verlinkt
+const startSection = startHash && document.getElementById(startHash.slice(1));
+if (startSection) startSection.scrollIntoView(); else window.scrollTo(0, 0);
 </script>
 </body>
 </html>
