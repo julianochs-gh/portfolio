@@ -324,10 +324,10 @@
   @media (max-width: 520px) {
     .map-svg { height: clamp(620px, 90svh, 780px); }
     .site-head { gap: 6px; }
-    .site-head nav { gap: 6px 14px; }
+    .site-head nav { gap: clamp(5px, 2vw, 14px); flex-wrap: nowrap; white-space: nowrap; max-width: 100%; }
     .name span { display: block; margin: 2px 0 0; font-size: 15px; }
     .mode-btn { position: absolute; top: 20px; right: max(16px, env(safe-area-inset-right, 0px)); padding: 4px; }
-    .site-head nav a, .nav-btn, .mode-btn { font-size: 14px; }
+    .site-head nav a, .nav-btn { font-size: clamp(10px, 3.05vw, 14px); }
     .cv li { grid-template-columns: 1fr; gap: 2px; }
   }
 </style>
@@ -991,7 +991,7 @@ setHeadH(); window.addEventListener("resize", setHeadH);
   const AMP = 20;
   let amp = AMP;
   function draw(t = performance.now()) {
-    const ts = t * (W < 600 ? 0.4 : W < 1000 ? 0.7 : 1);
+    const ts = t * (W < 600 ? 0.2 : W < 1000 ? 0.6 : 1);
     const still = !ambient || dragNode || svg.classList.contains("has-focus");
     const target = AMP * Math.max(0.3, Math.min(1, (W - 300) / 900));
     amp += ((still ? 0 : target) - amp) * 0.06;
