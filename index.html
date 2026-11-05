@@ -324,7 +324,7 @@
   @media (max-width: 520px) {
     .map-svg { height: clamp(620px, 90svh, 780px); }
     .site-head { gap: 6px; }
-    .site-head nav { gap: clamp(5px, 2vw, 14px); flex-wrap: nowrap; white-space: nowrap; max-width: 100%; }
+    .site-head nav { gap: clamp(5px, 2vw, 14px); flex-wrap: nowrap; white-space: nowrap; width: max-content; max-width: none; }
     .name span { display: block; margin: 2px 0 0; font-size: 15px; }
     .mode-btn { position: absolute; top: 20px; right: max(16px, env(safe-area-inset-right, 0px)); padding: 4px; }
     .site-head nav a, .nav-btn { font-size: clamp(10px, 3.05vw, 14px); }
@@ -802,6 +802,24 @@ document.addEventListener("touchmove", tlLockScroll, { passive: false });
   });
   sync();
 })();
+
+// Menü auf schmalen Bildschirmen so verkleinern, dass es in eine Zeile passt (auch bei vergrößerter Systemschrift)
+function fitNav() {
+  const nav = document.querySelector(".site-head nav");
+  const items = [...nav.querySelectorAll("a, .nav-btn")];
+  items.forEach((el) => (el.style.fontSize = ""));
+  if (window.innerWidth > 520) return;
+  const avail = document.querySelector(".site-head").clientWidth - 32;
+  let size = parseFloat(getComputedStyle(items[0]).fontSize);
+  let guard = 0;
+  while (nav.scrollWidth > avail && size > 8 && guard++ < 40) {
+    size -= 0.5;
+    items.forEach((el) => (el.style.fontSize = size + "px"));
+  }
+}
+fitNav();
+window.addEventListener("resize", fitNav);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitNav);
 
 // Höhe des Kopfbereichs für Sprungziele
 function setHeadH() { document.documentElement.style.setProperty("--head-h", document.querySelector(".site-head").getBoundingClientRect().height + 8 + "px"); }
